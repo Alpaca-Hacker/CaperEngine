@@ -78,7 +78,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>D:\Code\CaperEngine\libs;D:\Code\Lib\SDL2\include;$(IncludePath)</IncludePath>
+    <IncludePath>D:\Code\CaperEngine\include;D:\Code\CaperEngine\libs;D:\Code\Lib\SDL2\include;$(IncludePath)</IncludePath>
     <LibraryPath>D:\Code\CaperEngine\libs\lua;D:\Code\Lib\SDL2\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -398,6 +398,7 @@
     <ClInclude Include="libs\lua\luaconf.h" />
     <ClInclude Include="libs\lua\lualib.h" />
     <ClInclude Include="libs\sol\sol.hpp" />
+    <ClInclude Include="include\Game.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="libs\glm\detail\func_common.inl" />
@@ -534,6 +535,7 @@
     <None Include="libs\glm\gtx\wrap.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="libs\glm\detail\glm.cpp" />
     <ClCompile Include="libs\imgui\imgui.cpp" />
     <ClCompile Include="libs\imgui\imgui_demo.cpp" />
