@@ -1,14 +1,14 @@
 #include <iostream>
-#include "Game.h"
+#include "Engine/Engine.h"
 
 int main(int argc, char* argv[]) {
-	Game game;
+	Engine engine;
 
-	game.Initialise();
+	engine.Initialise();
 
-	game.Run();
+	engine.Run();
 
-	game.Shutdown();
+	engine.Shutdown();
 
 	return 0;
 }

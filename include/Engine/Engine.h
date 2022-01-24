@@ -4,14 +4,14 @@
 const int FPS = 30;
 constexpr int MILLISECS_PER_FRAME = 1000 / FPS;
 
-class Game
+class Engine
 {
 public:
 	int window_width_;
 	int window_height_;
 
-	Game();
-	~Game();
+	Engine();
+	~Engine();
 
 	void Initialise();
 	void Setup();

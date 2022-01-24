@@ -1,21 +1,21 @@
-#include "Game.h"
+#include "Engine/Engine.h"
 
 #include <iostream>
 #include <SDL.h>
 #include <SDL_image.h>
 #include <glm/glm.hpp>
 
-#include "Logger.h"
+#include "Log/Logger.h"
 
-Game::Game()
+Engine::Engine()
 {
 }
 
-Game::~Game()
+Engine::~Engine()
 {
 }
 
-void Game::Initialise()
+void Engine::Initialise()
 {
 	Logger::Initialise();
 
@@ -57,7 +57,7 @@ void Game::Initialise()
 glm::vec2 playerPosition;
 glm::vec2 playerVelocity;
 
-void Game::Setup()
+void Engine::Setup()
 {
 	SDL_Surface* surface = IMG_Load("./assets/images/tank-tiger-right.png");
 	texture_ = SDL_CreateTextureFromSurface(renderer_, surface);
@@ -68,7 +68,7 @@ void Game::Setup()
 	playerVelocity.y = 200.0;
 }
 
-void Game::Run()
+void Engine::Run()
 {
 	Setup();
 	while (is_running_)
@@ -79,7 +79,7 @@ void Game::Run()
 	}
 }
 
-void Game::ProcessInput()
+void Engine::ProcessInput()
 {
 	SDL_Event sdl_event;
 	while (SDL_PollEvent(&sdl_event))
@@ -101,7 +101,7 @@ void Game::ProcessInput()
 	}
 }
 
-void Game::Update()
+void Engine::Update()
 {
 	int timeToWait = MILLISECS_PER_FRAME - (SDL_GetTicks() - millisecs_prev_frame_);
 	if (timeToWait > 0 && timeToWait <= millisecs_prev_frame_)
@@ -118,7 +118,7 @@ void Game::Update()
 
 	if (playerPosition.x < 0 || playerPosition.x > window_width_ - 32)
 	{
-		Logger::Fatal("Boing!");
+		Logger::Log("Boing!");
 		playerVelocity.x = -playerVelocity.x;
 	}
 
@@ -129,7 +129,7 @@ void Game::Update()
 	}
 }
 
-void Game::Render()
+void Engine::Render()
 {
 	SDL_SetRenderDrawColor(renderer_, 0x15, 0x15, 0x15, 0xFF);
 	SDL_RenderClear(renderer_);
@@ -140,7 +140,7 @@ void Game::Render()
 	SDL_RenderPresent(renderer_);
 }
 
-void Game::Shutdown()
+void Engine::Shutdown()
 {
 	Logger::Log("Shutting down");
 	SDL_DestroyTexture(texture_);
