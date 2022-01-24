@@ -144,6 +144,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\Components\RigidBodyComponent.h" />
     <ClInclude Include="include\ECS\ECS.h" />
     <ClInclude Include="include\ECS\Pool.h" />
     <ClInclude Include="include\Log\Logger.h" />

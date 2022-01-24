@@ -3,11 +3,11 @@
 class IPool
 {
 public:
-	virtual ~IPool();
+	virtual ~IPool() {}
 };
 
 template <typename T>
-class Pool : IPool
+class Pool : public IPool
 {
 public:
 	Pool(const int size = 100) { Resize(size); }

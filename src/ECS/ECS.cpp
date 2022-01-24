@@ -27,13 +27,14 @@ Entity Registry::CreateEntity()
 	int entity_id = num_entities_++;
 
 	Entity entity(entity_id);
+	entity.registry_ = this;
 	entities_to_be_added_.insert(entity);
 
 	if (entity_id >= entity_component_signatures_.size()) {
 		entity_component_signatures_.resize(entity_id + 1);
 	}
 
-	Logger::Log("Entity created with id: {}", entity_id);
+	Logger::Log("Entity created with id {}", entity_id);
 
 	return entity;
 }
@@ -57,4 +58,9 @@ void Registry::AddEntityToSystems(Entity entity)
 
 void Registry::Update()
 {
+	for (auto entity : entities_to_be_added_)
+	{
+		AddEntityToSystems(entity);
+	}
+	entities_to_be_added_.clear();
 }

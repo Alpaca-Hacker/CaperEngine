@@ -1,6 +1,8 @@
 #pragma once
 #include <SDL.h>
 
+#include "ECS/ECS.h"
+
 const int FPS = 30;
 constexpr int MILLISECS_PER_FRAME = 1000 / FPS;
 
@@ -26,6 +28,7 @@ private:
 	SDL_Window* window_;
 	SDL_Renderer* renderer_;
 	bool is_running_;
-	SDL_Texture* texture_;
 	int millisecs_prev_frame_;
+
+	std::unique_ptr<Registry> registry_;
 };

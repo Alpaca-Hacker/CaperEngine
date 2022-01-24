@@ -5,10 +5,13 @@
 #include <SDL_image.h>
 #include <glm/glm.hpp>
 
+#include "Components/RigidBodyComponent.h"
+#include "Components/TransformComponent.h"
 #include "Log/Logger.h"
 
 Engine::Engine()
 {
+	registry_ = std::make_unique <Registry>();
 }
 
 Engine::~Engine()
@@ -54,18 +57,13 @@ void Engine::Initialise()
 	is_running_ = true;
 }
 
-glm::vec2 playerPosition;
-glm::vec2 playerVelocity;
-
 void Engine::Setup()
 {
-	SDL_Surface* surface = IMG_Load("./assets/images/tank-tiger-right.png");
-	texture_ = SDL_CreateTextureFromSurface(renderer_, surface);
-	SDL_FreeSurface(surface);
-	playerPosition.x = 10.0;
-	playerPosition.y = 20.0;
-	playerVelocity.x = 100.0;
-	playerVelocity.y = 200.0;
+	Entity tank = registry_->CreateEntity();
+	//Entity truck = registry_->CreateEntity();
+
+	tank.AddComponent<TransformComponent>(glm::vec2(10.0, 30.0), glm::vec2(1.0, 1.0), 0.0);
+	tank.AddComponent<RigidBodyComponent>(glm::vec2(10.0, 20.0));
 }
 
 void Engine::Run()
@@ -109,24 +107,9 @@ void Engine::Update()
 		SDL_Delay(timeToWait);
 	}
 
-	float deltaTime = (SDL_GetTicks() - millisecs_prev_frame_) / 1000.0f;
+	double deltaTime = (SDL_GetTicks() - millisecs_prev_frame_) / 1000.0f;
 
 	millisecs_prev_frame_ = SDL_GetTicks();
-
-	playerPosition.x += playerVelocity.x * deltaTime;
-	playerPosition.y += playerVelocity.y * deltaTime;
-
-	if (playerPosition.x < 0 || playerPosition.x > window_width_ - 32)
-	{
-		Logger::Log("Boing!");
-		playerVelocity.x = -playerVelocity.x;
-	}
-
-	if (playerPosition.y < 0 || playerPosition.y > window_height_ - 32)
-	{
-		Logger::Err("Hit Side");
-		playerVelocity.y = -playerVelocity.y;
-	}
 }
 
 void Engine::Render()
@@ -134,16 +117,13 @@ void Engine::Render()
 	SDL_SetRenderDrawColor(renderer_, 0x15, 0x15, 0x15, 0xFF);
 	SDL_RenderClear(renderer_);
 
-	SDL_Rect dest = { static_cast<int>(playerPosition.x), static_cast<int>(playerPosition.y), 32, 32 };
-	SDL_RenderCopy(renderer_, texture_, nullptr, &dest);
-
 	SDL_RenderPresent(renderer_);
 }
 
 void Engine::Shutdown()
 {
 	Logger::Log("Shutting down");
-	SDL_DestroyTexture(texture_);
+
 	SDL_DestroyRenderer(renderer_);
 	SDL_DestroyWindow(window_);
 	SDL_Quit();
