@@ -6,8 +6,12 @@
 #include <glm/glm.hpp>
 
 #include "Components/RigidBodyComponent.h"
+#include "Components/SpriteComponent.h"
 #include "Components/TransformComponent.h"
 #include "Log/Logger.h"
+#include "Systems/BounceSystem.h"
+#include "Systems/MovementSystem.h"
+#include "Systems/RenderSystem.h"
 
 Engine::Engine()
 {
@@ -59,11 +63,21 @@ void Engine::Initialise()
 
 void Engine::Setup()
 {
+	//Add Systems
+	registry_->AddSystem<MovementSystem>();
+	registry_->AddSystem<RenderSystem>();
+	registry_->AddSystem<BounceSystem>();
+
 	Entity tank = registry_->CreateEntity();
-	//Entity truck = registry_->CreateEntity();
+	Entity truck = registry_->CreateEntity();
 
 	tank.AddComponent<TransformComponent>(glm::vec2(10.0, 30.0), glm::vec2(1.0, 1.0), 0.0);
-	tank.AddComponent<RigidBodyComponent>(glm::vec2(10.0, 20.0));
+	tank.AddComponent<RigidBodyComponent>(glm::vec2(60.0, 20.0));
+	tank.AddComponent<SpriteComponent>(15, 15);
+
+	truck.AddComponent<TransformComponent>(glm::vec2(100.0, 130.0), glm::vec2(1.0, 1.0), 0.0);
+	truck.AddComponent<RigidBodyComponent>(glm::vec2(-100.0, 25.0));
+	truck.AddComponent<SpriteComponent>(20, 10);
 }
 
 void Engine::Run()
@@ -107,16 +121,23 @@ void Engine::Update()
 		SDL_Delay(timeToWait);
 	}
 
-	double deltaTime = (SDL_GetTicks() - millisecs_prev_frame_) / 1000.0f;
+	double delta_time = (SDL_GetTicks() - millisecs_prev_frame_) / 1000.0f;
 
 	millisecs_prev_frame_ = SDL_GetTicks();
+
+	//Update Systems
+	registry_->GetSystem<MovementSystem>().Update(delta_time);
+	registry_->GetSystem<BounceSystem>().Update();
+
+	//Update Registry
+	registry_->Update();
 }
 
 void Engine::Render()
 {
 	SDL_SetRenderDrawColor(renderer_, 0x15, 0x15, 0x15, 0xFF);
 	SDL_RenderClear(renderer_);
-
+	registry_->GetSystem<RenderSystem>().Update(renderer_);
 	SDL_RenderPresent(renderer_);
 }
 

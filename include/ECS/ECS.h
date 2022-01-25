@@ -87,7 +87,7 @@ public:
 	template <typename TComponent> bool HasComponent(Entity entity);
 	template <typename TComponent> TComponent& GetComponent(Entity entity) const;
 
-	template <typename TSystem, typename ...TArgs> void AddSystem(Entity entity, TArgs&& ...args);
+	template <typename TSystem, typename ...TArgs> void AddSystem(TArgs&& ...args);
 	template <typename TSystem> void RemoveSystem(Entity entity);
 	template <typename TSystem> bool HasSystem(Entity entity);
 	template <typename TSystem> TSystem& GetSystem() const;
@@ -175,7 +175,7 @@ TComponent& Registry::GetComponent(Entity entity) const
 }
 
 template <typename TSystem, typename ... TArgs>
-void Registry::AddSystem(Entity entity, TArgs&&... args)
+void Registry::AddSystem(TArgs&&... args)
 {
 	std::shared_ptr<TSystem> new_system = std::make_shared<TSystem>(std::forward<TArgs>(args)...);
 	systems.insert(std::make_pair(std::type_index(typeid(TSystem)), new_system));

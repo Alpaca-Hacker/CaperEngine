@@ -145,10 +145,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\Components\RigidBodyComponent.h" />
+    <ClInclude Include="include\Components\SpriteComponent.h" />
     <ClInclude Include="include\ECS\ECS.h" />
     <ClInclude Include="include\ECS\Pool.h" />
     <ClInclude Include="include\Log\Logger.h" />
+    <ClInclude Include="include\Systems\BounceSystem.h" />
     <ClInclude Include="include\Systems\MovementSystem.h" />
+    <ClInclude Include="include\Systems\RenderSystem.h" />
     <ClInclude Include="libs\glm\common.hpp" />
     <ClInclude Include="libs\glm\detail\compute_common.hpp" />
     <ClInclude Include="libs\glm\detail\compute_vector_relational.hpp" />
