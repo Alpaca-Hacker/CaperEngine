@@ -1,10 +1,12 @@
 #include "Engine/Engine.h"
 
+#include <fstream>
 #include <iostream>
 #include <SDL.h>
 #include <SDL_image.h>
 #include <glm/glm.hpp>
 
+#include "AssetStore/AssetStore.h"
 #include "Components/RigidBodyComponent.h"
 #include "Components/SpriteComponent.h"
 #include "Components/TransformComponent.h"
@@ -16,6 +18,7 @@
 Engine::Engine()
 {
 	registry_ = std::make_unique <Registry>();
+	asset_store_ = std::make_unique<AssetStore>();
 }
 
 Engine::~Engine()
@@ -61,23 +64,57 @@ void Engine::Initialise()
 	is_running_ = true;
 }
 
-void Engine::Setup()
+void Engine::LoadLevel(int level)
 {
 	//Add Systems
 	registry_->AddSystem<MovementSystem>();
 	registry_->AddSystem<RenderSystem>();
-	registry_->AddSystem<BounceSystem>();
+	//registry_->AddSystem<BounceSystem>();
+
+	asset_store_->AddTexture(renderer_, "tank-image", "./assets/images/kenney/Tank-right.png");
+	asset_store_->AddTexture(renderer_, "truck-image", "./assets/images/kenney/Truck_Right.png");
+	asset_store_->AddTexture(renderer_, "tilemap-image", "./assets/tilemaps/jungle.png");
+
+	// Load the tilemap
+	int tileSize = 32;
+	double tileScale = 1.0;
+	int mapNumCols = 25;
+	int mapNumRows = 20;
+
+	std::fstream map_file;
+	map_file.open("./assets/tilemaps/jungle.map");
+
+	for (int y = 0; y < mapNumRows; y++) {
+		for (int x = 0; x < mapNumCols; x++) {
+			char ch;
+			map_file.get(ch);
+			int srcRectY = std::atoi(&ch) * tileSize;
+			map_file.get(ch);
+			int srcRectX = std::atoi(&ch) * tileSize;
+			map_file.ignore();
+
+			Entity tile = registry_->CreateEntity();
+			tile.AddComponent<TransformComponent>(glm::vec2(x * (tileScale * tileSize), y * (tileScale * tileSize)), glm::vec2(tileScale, tileScale), 0.0);
+			tile.AddComponent<SpriteComponent>("tilemap-image", tileSize, tileSize, srcRectX, srcRectY);
+		}
+	}
+	map_file.close();
 
 	Entity tank = registry_->CreateEntity();
 	Entity truck = registry_->CreateEntity();
 
-	tank.AddComponent<TransformComponent>(glm::vec2(10.0, 30.0), glm::vec2(1.0, 1.0), 0.0);
-	tank.AddComponent<RigidBodyComponent>(glm::vec2(60.0, 20.0));
-	tank.AddComponent<SpriteComponent>(15, 15);
+	tank.AddComponent<TransformComponent>(glm::vec2(32.0, 32.0), glm::vec2(2.0, 2.0), 0.0);
+	tank.AddComponent<RigidBodyComponent>(glm::vec2(10.0, 20.0));
+	tank.AddComponent<SpriteComponent>("tank-image", 64, 64);
 
 	truck.AddComponent<TransformComponent>(glm::vec2(100.0, 130.0), glm::vec2(1.0, 1.0), 0.0);
-	truck.AddComponent<RigidBodyComponent>(glm::vec2(-100.0, 25.0));
-	truck.AddComponent<SpriteComponent>(20, 10);
+	truck.AddComponent<RigidBodyComponent>(glm::vec2(-10.0, 25.0));
+	truck.AddComponent<SpriteComponent>("truck-image", 64, 64);
+}
+
+void Engine::Setup()
+{
+	LoadLevel(1);
 }
 
 void Engine::Run()
@@ -127,7 +164,7 @@ void Engine::Update()
 
 	//Update Systems
 	registry_->GetSystem<MovementSystem>().Update(delta_time);
-	registry_->GetSystem<BounceSystem>().Update();
+	//registry_->GetSystem<BounceSystem>().Update();
 
 	//Update Registry
 	registry_->Update();
@@ -137,7 +174,7 @@ void Engine::Render()
 {
 	SDL_SetRenderDrawColor(renderer_, 0x15, 0x15, 0x15, 0xFF);
 	SDL_RenderClear(renderer_);
-	registry_->GetSystem<RenderSystem>().Update(renderer_);
+	registry_->GetSystem<RenderSystem>().Update(renderer_, asset_store_);
 	SDL_RenderPresent(renderer_);
 }
 

@@ -1,6 +1,7 @@
 #pragma once
 #include <SDL.h>
 
+#include "AssetStore/AssetStore.h"
 #include "ECS/ECS.h"
 
 const int FPS = 30;
@@ -16,6 +17,7 @@ public:
 	~Engine();
 
 	void Initialise();
+	void LoadLevel(int level);
 	void Setup();
 	void Run();
 	void ProcessInput();
@@ -31,4 +33,5 @@ private:
 	int millisecs_prev_frame_;
 
 	std::unique_ptr<Registry> registry_;
+	std::unique_ptr<AssetStore> asset_store_;
 };

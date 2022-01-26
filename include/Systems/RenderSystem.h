@@ -14,23 +14,31 @@ public:
 		RequriedComponent<SpriteComponent>();
 	}
 
-	void Update(SDL_Renderer* renderer)
+	void Update(SDL_Renderer* renderer, const std::unique_ptr<AssetStore>& asset_store)
 	{
 		for (auto entity : GetSystemEntities())
 		{
 			const auto& transform = entity.GetComponent<TransformComponent>();
 			const auto& sprite = entity.GetComponent<SpriteComponent>();
 
-			SDL_Rect obj_rect{
-				static_cast<int>(transform.position.x),
-				static_cast<int>(transform.position.y),
-				sprite.width,
-				sprite.height };
+			SDL_Rect src_rect = sprite.src_rect;
 
-			SDL_SetRenderDrawColor(renderer, 100, 149, 237, 255);
-			SDL_RenderFillRect(renderer, &obj_rect);
+			SDL_Rect dest_rect{
+	static_cast<int>(transform.position.x),
+	static_cast<int>(transform.position.y),
+	static_cast<int>(static_cast<float>(sprite.width) * transform.scale.x),
+	static_cast<int>(static_cast<float>(sprite.height) * transform.scale.y)
+			};
 
-			Logger::Log("Entity {} now at position [{}, {}]", entity.GetId(), transform.position.x, transform.position.y);
+			SDL_RenderCopyEx(
+				renderer,
+				asset_store->GetTexture(sprite.asset_id),
+				&src_rect,
+				&dest_rect,
+				transform.rotation,
+				nullptr,
+				SDL_FLIP_NONE
+			);
 		}
 	}
 };

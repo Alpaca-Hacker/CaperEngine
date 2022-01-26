@@ -144,6 +144,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\AssetStore\AssetStore.h" />
     <ClInclude Include="include\Components\RigidBodyComponent.h" />
     <ClInclude Include="include\Components\SpriteComponent.h" />
     <ClInclude Include="include\ECS\ECS.h" />
@@ -740,6 +741,7 @@
     <None Include="libs\glm\gtx\wrap.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\AssetStore\AssetStore.cpp" />
     <ClCompile Include="src\ECS\ECS.cpp" />
     <ClCompile Include="src\Engine\Engine.cpp" />
     <ClCompile Include="libs\glm\detail\glm.cpp" />
