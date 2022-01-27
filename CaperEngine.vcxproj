@@ -145,12 +145,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\AssetStore\AssetStore.h" />
+    <ClInclude Include="include\Components\AnimationComponent.h" />
+    <ClInclude Include="include\Components\BoxColliderComponent.h" />
     <ClInclude Include="include\Components\RigidBodyComponent.h" />
     <ClInclude Include="include\Components\SpriteComponent.h" />
     <ClInclude Include="include\ECS\ECS.h" />
     <ClInclude Include="include\ECS\Pool.h" />
     <ClInclude Include="include\Log\Logger.h" />
-    <ClInclude Include="include\Systems\BounceSystem.h" />
+    <ClInclude Include="include\Systems\AnimationSystem.h" />
+    <ClInclude Include="include\Systems\DebugHitBoxSystem.h" />
+    <ClInclude Include="include\Systems\CollisionSystem.h" />
     <ClInclude Include="include\Systems\MovementSystem.h" />
     <ClInclude Include="include\Systems\RenderSystem.h" />
     <ClInclude Include="libs\glm\common.hpp" />
@@ -741,6 +745,8 @@
     <None Include="libs\glm\gtx\wrap.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Systems\CollisionSystem.cpp" />
+    <ClCompile Include="src\Systems\AnimationSystem.cpp" />
     <ClCompile Include="src\AssetStore\AssetStore.cpp" />
     <ClCompile Include="src\ECS\ECS.cpp" />
     <ClCompile Include="src\Engine\Engine.cpp" />
@@ -752,6 +758,7 @@
     <ClCompile Include="libs\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\Log\Logger.cpp" />
     <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\Systems\RenderSystem.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

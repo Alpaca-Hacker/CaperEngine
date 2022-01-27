@@ -31,6 +31,7 @@ private:
 	SDL_Renderer* renderer_;
 	bool is_running_;
 	int millisecs_prev_frame_;
+	bool display_hit_boxes_;
 
 	std::unique_ptr<Registry> registry_;
 	std::unique_ptr<AssetStore> asset_store_;

@@ -7,11 +7,15 @@
 #include <glm/glm.hpp>
 
 #include "AssetStore/AssetStore.h"
+#include "Components/AnimationComponent.h"
+#include "Components/BoxColliderComponent.h"
 #include "Components/RigidBodyComponent.h"
 #include "Components/SpriteComponent.h"
 #include "Components/TransformComponent.h"
 #include "Log/Logger.h"
-#include "Systems/BounceSystem.h"
+#include "Systems/AnimationSystem.h"
+#include "Systems/CollisionSystem.h"
+#include "Systems/DebugHitBoxSystem.h"
 #include "Systems/MovementSystem.h"
 #include "Systems/RenderSystem.h"
 
@@ -19,6 +23,7 @@ Engine::Engine()
 {
 	registry_ = std::make_unique <Registry>();
 	asset_store_ = std::make_unique<AssetStore>();
+	display_hit_boxes_ = false;
 }
 
 Engine::~Engine()
@@ -37,8 +42,8 @@ void Engine::Initialise()
 
 	SDL_DisplayMode display_mode;
 	SDL_GetCurrentDisplayMode(0, &display_mode);
-	window_width_ = 800; // display_mode.w;
-	window_height_ = 600; // display_mode.h
+	window_width_ = 1200; // display_mode.w;
+	window_height_ = window_width_ / 16 * 9; // display_mode.h
 
 	window_ = SDL_CreateWindow(
 		nullptr,
@@ -69,15 +74,19 @@ void Engine::LoadLevel(int level)
 	//Add Systems
 	registry_->AddSystem<MovementSystem>();
 	registry_->AddSystem<RenderSystem>();
-	//registry_->AddSystem<BounceSystem>();
+	registry_->AddSystem<DebugHitBoxSystem>();
+	registry_->AddSystem<AnimationSystem>();
+	registry_->AddSystem<CollisionSystem>();
 
 	asset_store_->AddTexture(renderer_, "tank-image", "./assets/images/kenney/Tank-right.png");
 	asset_store_->AddTexture(renderer_, "truck-image", "./assets/images/kenney/Truck_Right.png");
 	asset_store_->AddTexture(renderer_, "tilemap-image", "./assets/tilemaps/jungle.png");
+	asset_store_->AddTexture(renderer_, "chopper-image", "./assets/images/chopper.png");
+	asset_store_->AddTexture(renderer_, "radar-image", "./assets/images/radar.png");
 
 	// Load the tilemap
 	int tileSize = 32;
-	double tileScale = 1.0;
+	double tileScale = 2.0;
 	int mapNumCols = 25;
 	int mapNumRows = 20;
 
@@ -95,21 +104,35 @@ void Engine::LoadLevel(int level)
 
 			Entity tile = registry_->CreateEntity();
 			tile.AddComponent<TransformComponent>(glm::vec2(x * (tileScale * tileSize), y * (tileScale * tileSize)), glm::vec2(tileScale, tileScale), 0.0);
-			tile.AddComponent<SpriteComponent>("tilemap-image", tileSize, tileSize, srcRectX, srcRectY);
+			tile.AddComponent<SpriteComponent>("tilemap-image", tileSize, tileSize, 0, srcRectX, srcRectY);
 		}
 	}
 	map_file.close();
 
+	Entity chopper = registry_->CreateEntity();
+	chopper.AddComponent<TransformComponent>(glm::vec2(100.0, 100.0), glm::vec2(2.0, 2.0), 0.0);
+	chopper.AddComponent<RigidBodyComponent>(glm::vec2(0.0, 0.0));
+	chopper.AddComponent<SpriteComponent>("chopper-image", 32, 32, 1);
+	chopper.AddComponent<AnimationComponent>(2, 15, true);
+
+	Entity radar = registry_->CreateEntity();
+	radar.AddComponent<TransformComponent>(glm::vec2(window_width_ - 74, 10), glm::vec2(1.0, 1.0), 0.0);
+	radar.AddComponent<RigidBodyComponent>(glm::vec2(0.0, 0.0));
+	radar.AddComponent<SpriteComponent>("radar-image", 64, 64, 2);
+	radar.AddComponent<AnimationComponent>(8, 7, true);
+
 	Entity tank = registry_->CreateEntity();
 	Entity truck = registry_->CreateEntity();
 
-	tank.AddComponent<TransformComponent>(glm::vec2(32.0, 32.0), glm::vec2(2.0, 2.0), 0.0);
-	tank.AddComponent<RigidBodyComponent>(glm::vec2(10.0, 20.0));
-	tank.AddComponent<SpriteComponent>("tank-image", 64, 64);
+	tank.AddComponent<TransformComponent>(glm::vec2(500.0, 482.0), glm::vec2(1.0, 1.0), 0.0);
+	tank.AddComponent<RigidBodyComponent>(glm::vec2(-30.0, 0.0));
+	tank.AddComponent<SpriteComponent>("tank-image", 64, 64, 2);
+	tank.AddComponent<BoxColliderComponent>(64, 64);
 
-	truck.AddComponent<TransformComponent>(glm::vec2(100.0, 130.0), glm::vec2(1.0, 1.0), 0.0);
-	truck.AddComponent<RigidBodyComponent>(glm::vec2(-10.0, 25.0));
-	truck.AddComponent<SpriteComponent>("truck-image", 64, 64);
+	truck.AddComponent<TransformComponent>(glm::vec2(100.0, 482.0), glm::vec2(1.0, 1.0), 0.0);
+	truck.AddComponent<RigidBodyComponent>(glm::vec2(20.0, 0.0));
+	truck.AddComponent<SpriteComponent>("truck-image", 64, 64, 1);
+	truck.AddComponent<BoxColliderComponent>(64, 64, glm::vec2(64, 0));
 }
 
 void Engine::Setup()
@@ -143,6 +166,10 @@ void Engine::ProcessInput()
 			{
 				is_running_ = false;
 			}
+			if (sdl_event.key.keysym.sym == SDLK_F7)
+			{
+				display_hit_boxes_ = !display_hit_boxes_;
+			}
 			break;
 		default:
 			break;
@@ -152,19 +179,20 @@ void Engine::ProcessInput()
 
 void Engine::Update()
 {
-	int timeToWait = MILLISECS_PER_FRAME - (SDL_GetTicks() - millisecs_prev_frame_);
+	int timeToWait = MILLISECS_PER_FRAME - (SDL_GetTicks64() - millisecs_prev_frame_);
 	if (timeToWait > 0 && timeToWait <= millisecs_prev_frame_)
 	{
 		SDL_Delay(timeToWait);
 	}
 
-	double delta_time = (SDL_GetTicks() - millisecs_prev_frame_) / 1000.0f;
+	double delta_time = (SDL_GetTicks64() - millisecs_prev_frame_) / 1000.0f;
 
-	millisecs_prev_frame_ = SDL_GetTicks();
+	millisecs_prev_frame_ = SDL_GetTicks64();
 
 	//Update Systems
 	registry_->GetSystem<MovementSystem>().Update(delta_time);
-	//registry_->GetSystem<BounceSystem>().Update();
+	registry_->GetSystem<AnimationSystem>().Update();
+	registry_->GetSystem<CollisionSystem>().Update();
 
 	//Update Registry
 	registry_->Update();
@@ -175,6 +203,10 @@ void Engine::Render()
 	SDL_SetRenderDrawColor(renderer_, 0x15, 0x15, 0x15, 0xFF);
 	SDL_RenderClear(renderer_);
 	registry_->GetSystem<RenderSystem>().Update(renderer_, asset_store_);
+
+	if (display_hit_boxes_) {
+		registry_->GetSystem<DebugHitBoxSystem>().Update(renderer_);
+	}
 	SDL_RenderPresent(renderer_);
 }
 
