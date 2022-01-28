@@ -1,5 +1,6 @@
 #pragma once
 #include <bitset>
+#include <deque>
 #include <memory>
 #include <set>
 #include <typeindex>
@@ -38,6 +39,7 @@ public:
 	Entity(const int id);
 
 	[[nodiscard]] int GetId() const { return id_; }
+	void Kill();
 	template <typename TComponent, typename ...TArgs> void AddComponent(TArgs&& ...args);
 	template <typename TComponent> void RemoveComponent();
 	template <typename TComponent> bool HasComponent() const;
@@ -80,7 +82,7 @@ public:
 	void Update();
 
 	Entity CreateEntity();
-	//void KillEntity(Entity entity);
+	void KillEntity(Entity entity);
 
 	template <typename TComponent, typename ...TArgs> void AddComponent(Entity entity, TArgs&& ...args);
 	template <typename TComponent> void RemoveComponent(Entity entity);
@@ -93,7 +95,7 @@ public:
 	template <typename TSystem> TSystem& GetSystem() const;
 
 	void AddEntityToSystems(Entity entity);
-	//void RemoveSystem(Entity entity);
+	void RemoveEntityFromSystems(Entity entity);
 
 private:
 	int num_entities_ = 0;
@@ -104,7 +106,12 @@ private:
 
 	std::vector<Signature> entity_component_signatures_;
 	std::unordered_map<std::type_index, std::shared_ptr<System>> systems;
+	std::deque<int> free_ids_;
 };
+
+/*
+ *		TEMPLATES
+ */
 
 template <typename TComponent>
 void System::RequriedComponent()
