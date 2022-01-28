@@ -15,15 +15,16 @@
 #include "Log/Logger.h"
 #include "Systems/AnimationSystem.h"
 #include "Systems/CollisionSystem.h"
+#include "Systems/DamageSystem.h"
 #include "Systems/DebugHitBoxSystem.h"
 #include "Systems/MovementSystem.h"
 #include "Systems/RenderSystem.h"
 
-Engine::Engine()
+Engine::Engine() : display_hit_boxes_(false)
 {
 	registry_ = std::make_unique <Registry>();
 	asset_store_ = std::make_unique<AssetStore>();
-	display_hit_boxes_ = false;
+	event_bus_ = std::make_unique<EventBus>();
 }
 
 Engine::~Engine()
@@ -77,6 +78,7 @@ void Engine::LoadLevel(int level)
 	registry_->AddSystem<DebugHitBoxSystem>();
 	registry_->AddSystem<AnimationSystem>();
 	registry_->AddSystem<CollisionSystem>();
+	registry_->AddSystem<DamageSystem>();
 
 	asset_store_->AddTexture(renderer_, "tank-image", "./assets/images/kenney/Tank-right.png");
 	asset_store_->AddTexture(renderer_, "truck-image", "./assets/images/kenney/Truck_Right.png");
@@ -132,7 +134,7 @@ void Engine::LoadLevel(int level)
 	truck.AddComponent<TransformComponent>(glm::vec2(100.0, 482.0), glm::vec2(1.0, 1.0), 0.0);
 	truck.AddComponent<RigidBodyComponent>(glm::vec2(20.0, 0.0));
 	truck.AddComponent<SpriteComponent>("truck-image", 64, 64, 1);
-	truck.AddComponent<BoxColliderComponent>(64, 64, glm::vec2(64, 0));
+	truck.AddComponent<BoxColliderComponent>(64, 64);
 }
 
 void Engine::Setup()
@@ -189,10 +191,15 @@ void Engine::Update()
 
 	millisecs_prev_frame_ = SDL_GetTicks64();
 
+	event_bus_->Reset();
+
+	//Subscribe to Events for all systems
+	registry_->GetSystem<DamageSystem>().SubscribeToEvents(event_bus_);
+
 	//Update Systems
 	registry_->GetSystem<MovementSystem>().Update(delta_time);
 	registry_->GetSystem<AnimationSystem>().Update();
-	registry_->GetSystem<CollisionSystem>().Update();
+	registry_->GetSystem<CollisionSystem>().Update(event_bus_);
 
 	//Update Registry
 	registry_->Update();

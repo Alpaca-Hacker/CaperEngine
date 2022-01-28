@@ -3,6 +3,7 @@
 
 #include "AssetStore/AssetStore.h"
 #include "ECS/ECS.h"
+#include "Events/EventBus.h"
 
 const int FPS = 30;
 constexpr int MILLISECS_PER_FRAME = 1000 / FPS;
@@ -35,4 +36,5 @@ private:
 
 	std::unique_ptr<Registry> registry_;
 	std::unique_ptr<AssetStore> asset_store_;
+	std::unique_ptr<EventBus> event_bus_;
 };

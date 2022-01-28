@@ -2,6 +2,8 @@
 
 #include "Components/BoxColliderComponent.h"
 #include "Components/TransformComponent.h"
+#include "Events/CollisionEvent.h"
+#include "Events/EventBus.h"
 
 CollisionSystem::CollisionSystem()
 {
@@ -9,7 +11,7 @@ CollisionSystem::CollisionSystem()
 	RequriedComponent<TransformComponent>();
 }
 
-void CollisionSystem::Update()
+void CollisionSystem::Update(std::unique_ptr<EventBus>& event_bus)
 {
 	auto entities = GetSystemEntities();
 	for (auto i = entities.begin(); i != entities.end(); ++i)
@@ -39,8 +41,8 @@ void CollisionSystem::Update()
 			if (collisionHappened)
 			{
 				Logger::Log("Hit happened between entities {} and {}", a.GetId(), b.GetId());
-				has_been_hit = true;
-				collider_b.is_hit = true;
+
+				event_bus->EmitEvent<CollisionEvent>(a, b);
 			}
 		}
 		collider_a.is_hit = has_been_hit;

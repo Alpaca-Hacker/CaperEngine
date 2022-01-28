@@ -144,6 +144,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\Events\CollisionEvent.h" />
+    <ClInclude Include="include\Events\Event.h" />
+    <ClInclude Include="include\Events\EventBus.h" />
     <ClInclude Include="include\AssetStore\AssetStore.h" />
     <ClInclude Include="include\Components\AnimationComponent.h" />
     <ClInclude Include="include\Components\BoxColliderComponent.h" />
@@ -153,6 +156,7 @@
     <ClInclude Include="include\ECS\Pool.h" />
     <ClInclude Include="include\Log\Logger.h" />
     <ClInclude Include="include\Systems\AnimationSystem.h" />
+    <ClInclude Include="include\Systems\DamageSystem.h" />
     <ClInclude Include="include\Systems\DebugHitBoxSystem.h" />
     <ClInclude Include="include\Systems\CollisionSystem.h" />
     <ClInclude Include="include\Systems\MovementSystem.h" />
@@ -745,6 +749,7 @@
     <None Include="libs\glm\gtx\wrap.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Events\EventBus.cpp" />
     <ClCompile Include="src\Systems\CollisionSystem.cpp" />
     <ClCompile Include="src\Systems\AnimationSystem.cpp" />
     <ClCompile Include="src\AssetStore\AssetStore.cpp" />
@@ -758,6 +763,7 @@
     <ClCompile Include="libs\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\Log\Logger.cpp" />
     <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\Systems\DamageSystem.cpp" />
     <ClCompile Include="src\Systems\RenderSystem.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
