@@ -9,14 +9,17 @@
 #include "AssetStore/AssetStore.h"
 #include "Components/AnimationComponent.h"
 #include "Components/BoxColliderComponent.h"
+#include "Components/KeyboardControlledComponent.h"
 #include "Components/RigidBodyComponent.h"
 #include "Components/SpriteComponent.h"
 #include "Components/TransformComponent.h"
+#include "Events/KeypressEvent.h"
 #include "Log/Logger.h"
 #include "Systems/AnimationSystem.h"
 #include "Systems/CollisionSystem.h"
 #include "Systems/DamageSystem.h"
 #include "Systems/DebugHitBoxSystem.h"
+#include "Systems/KeyboardControllerSystem.h"
 #include "Systems/MovementSystem.h"
 #include "Systems/RenderSystem.h"
 
@@ -79,11 +82,12 @@ void Engine::LoadLevel(int level)
 	registry_->AddSystem<AnimationSystem>();
 	registry_->AddSystem<CollisionSystem>();
 	registry_->AddSystem<DamageSystem>();
+	registry_->AddSystem<KeyboardControllerSystem>();
 
 	asset_store_->AddTexture(renderer_, "tank-image", "./assets/images/kenney/Tank-right.png");
 	asset_store_->AddTexture(renderer_, "truck-image", "./assets/images/kenney/Truck_Right.png");
 	asset_store_->AddTexture(renderer_, "tilemap-image", "./assets/tilemaps/jungle.png");
-	asset_store_->AddTexture(renderer_, "chopper-image", "./assets/images/chopper.png");
+	asset_store_->AddTexture(renderer_, "chopper-image", "./assets/images/chopper-spritesheet.png");
 	asset_store_->AddTexture(renderer_, "radar-image", "./assets/images/radar.png");
 
 	// Load the tilemap
@@ -116,6 +120,7 @@ void Engine::LoadLevel(int level)
 	chopper.AddComponent<RigidBodyComponent>(glm::vec2(0.0, 0.0));
 	chopper.AddComponent<SpriteComponent>("chopper-image", 32, 32, 1);
 	chopper.AddComponent<AnimationComponent>(2, 15, true);
+	chopper.AddComponent<KeyboardControlledComponent>(glm::vec2(0, -20), glm::vec2(20, 0), glm::vec2(0, 20), glm::vec2(-20, 0));
 
 	Entity radar = registry_->CreateEntity();
 	radar.AddComponent<TransformComponent>(glm::vec2(window_width_ - 74, 10), glm::vec2(1.0, 1.0), 0.0);
@@ -164,18 +169,24 @@ void Engine::ProcessInput()
 			is_running_ = false;
 			break;
 		case SDL_KEYDOWN:
-			if (sdl_event.key.keysym.sym == SDLK_ESCAPE)
-			{
-				is_running_ = false;
-			}
-			if (sdl_event.key.keysym.sym == SDLK_F7)
-			{
-				display_hit_boxes_ = !display_hit_boxes_;
-			}
+			event_bus_->EmitEvent<KeypressEvent>(sdl_event.key.keysym.sym);
 			break;
 		default:
 			break;
 		}
+	}
+}
+
+void Engine::OnKeypress(KeypressEvent& event)
+{
+
+	if (event.symbol == SDLK_ESCAPE)
+	{
+		is_running_ = false;
+	}
+	if (event.symbol == SDLK_F7)
+	{
+		display_hit_boxes_ = !display_hit_boxes_;
 	}
 }
 
@@ -194,6 +205,8 @@ void Engine::Update()
 	event_bus_->Reset();
 
 	//Subscribe to Events for all systems
+	event_bus_->SubscribeToEvent<KeypressEvent>(this, &Engine::OnKeypress);
+	registry_->GetSystem<KeyboardControllerSystem>().SubscribeToEvents(event_bus_);
 	registry_->GetSystem<DamageSystem>().SubscribeToEvents(event_bus_);
 
 	//Update Systems

@@ -68,7 +68,7 @@ public:
 	[[nodiscard]] const Signature& GetComponentSignature() const { return component_signature_; }
 
 	// Defines the component type that the entities must have
-	template<typename TComponent> void RequriedComponent();
+	template<typename TComponent> void RequireComponent();
 
 private:
 	Signature component_signature_;
@@ -114,7 +114,7 @@ private:
  */
 
 template <typename TComponent>
-void System::RequriedComponent()
+void System::RequireComponent()
 {
 	const auto componentId = Component<TComponent>::GetId();
 	component_signature_.set(componentId);

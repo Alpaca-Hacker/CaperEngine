@@ -4,6 +4,7 @@
 #include "AssetStore/AssetStore.h"
 #include "ECS/ECS.h"
 #include "Events/EventBus.h"
+#include "Events/KeypressEvent.h"
 
 const int FPS = 30;
 constexpr int MILLISECS_PER_FRAME = 1000 / FPS;
@@ -22,6 +23,7 @@ public:
 	void Setup();
 	void Run();
 	void ProcessInput();
+	void OnKeypress(KeypressEvent& event);
 	void Update();
 	void Render();
 	void Shutdown();

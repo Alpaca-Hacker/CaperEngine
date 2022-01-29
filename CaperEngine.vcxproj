@@ -144,6 +144,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\Components\KeyboardControlledComponent.h" />
     <ClInclude Include="include\Events\CollisionEvent.h" />
     <ClInclude Include="include\Events\Event.h" />
     <ClInclude Include="include\Events\EventBus.h" />
@@ -154,11 +155,13 @@
     <ClInclude Include="include\Components\SpriteComponent.h" />
     <ClInclude Include="include\ECS\ECS.h" />
     <ClInclude Include="include\ECS\Pool.h" />
+    <ClInclude Include="include\Events\KeypressEvent.h" />
     <ClInclude Include="include\Log\Logger.h" />
     <ClInclude Include="include\Systems\AnimationSystem.h" />
     <ClInclude Include="include\Systems\DamageSystem.h" />
     <ClInclude Include="include\Systems\DebugHitBoxSystem.h" />
     <ClInclude Include="include\Systems\CollisionSystem.h" />
+    <ClInclude Include="include\Systems\KeyboardControllerSystem.h" />
     <ClInclude Include="include\Systems\MovementSystem.h" />
     <ClInclude Include="include\Systems\RenderSystem.h" />
     <ClInclude Include="libs\glm\common.hpp" />
@@ -764,6 +767,7 @@
     <ClCompile Include="src\Log\Logger.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Systems\DamageSystem.cpp" />
+    <ClCompile Include="src\Systems\KeyboardControllerSystem.cpp" />
     <ClCompile Include="src\Systems\RenderSystem.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

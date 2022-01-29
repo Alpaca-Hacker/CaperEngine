@@ -10,8 +10,8 @@ class DebugHitBoxSystem : public System
 public:
 	DebugHitBoxSystem()
 	{
-		RequriedComponent<TransformComponent>();
-		RequriedComponent<BoxColliderComponent>();
+		RequireComponent<TransformComponent>();
+		RequireComponent<BoxColliderComponent>();
 	}
 
 	void Update(SDL_Renderer* renderer)

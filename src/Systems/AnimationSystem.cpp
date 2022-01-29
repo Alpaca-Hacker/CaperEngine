@@ -5,8 +5,8 @@
 
 AnimationSystem::AnimationSystem()
 {
-	RequriedComponent<SpriteComponent>();
-	RequriedComponent<AnimationComponent>();
+	RequireComponent<SpriteComponent>();
+	RequireComponent<AnimationComponent>();
 }
 
 void AnimationSystem::Update()

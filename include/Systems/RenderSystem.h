@@ -11,8 +11,8 @@ class RenderSystem : public System
 public:
 	RenderSystem()
 	{
-		RequriedComponent<TransformComponent>();
-		RequriedComponent<SpriteComponent>();
+		RequireComponent<TransformComponent>();
+		RequireComponent<SpriteComponent>();
 	}
 
 	void Update(SDL_Renderer* renderer, const std::unique_ptr<AssetStore>& asset_store);

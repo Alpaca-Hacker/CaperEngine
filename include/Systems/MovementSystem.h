@@ -8,8 +8,8 @@ class MovementSystem : public System
 public:
 	MovementSystem()
 	{
-		RequriedComponent<TransformComponent>();
-		RequriedComponent<RigidBodyComponent>();
+		RequireComponent<TransformComponent>();
+		RequireComponent<RigidBodyComponent>();
 	}
 
 	void Update(double delta_time)

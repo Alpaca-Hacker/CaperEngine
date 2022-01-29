@@ -7,8 +7,8 @@
 
 CollisionSystem::CollisionSystem()
 {
-	RequriedComponent<BoxColliderComponent>();
-	RequriedComponent<TransformComponent>();
+	RequireComponent<BoxColliderComponent>();
+	RequireComponent<TransformComponent>();
 }
 
 void CollisionSystem::Update(std::unique_ptr<EventBus>& event_bus)

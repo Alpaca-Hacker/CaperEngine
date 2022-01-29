@@ -6,7 +6,7 @@
 
 DamageSystem::DamageSystem()
 {
-	RequriedComponent<BoxColliderComponent>();
+	RequireComponent<BoxColliderComponent>();
 }
 
 void DamageSystem::OnCollision(CollisionEvent& event)

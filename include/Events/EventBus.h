@@ -20,12 +20,12 @@ template <typename TOwner, typename TEvent>
 class EventCallback : public IEventCallback
 {
 private:
-	typedef void (TOwner::* CallbackFunction)(TEvent&);
+	typedef void (TOwner::*CallbackFunction)(TEvent&);
 
 	TOwner* owner_instance_;
 	CallbackFunction callback_function_;
 
-	void Call(Event& e) override
+	virtual void Call(Event& e) override
 	{
 		std::invoke(callback_function_, owner_instance_, static_cast<TEvent&>(e));
 	}
@@ -36,10 +36,10 @@ public:
 		this->callback_function_ = callback_function;
 	}
 
-	virtual  ~EventCallback() override = default;
+	virtual ~EventCallback() override = default;
 };
 
-using HandlerList = std::list <std::unique_ptr <IEventCallback>>;
+typedef std::list <std::unique_ptr <IEventCallback>> HandlerList;
 
 class EventBus
 {
@@ -48,7 +48,7 @@ public:
 	~EventBus() = default;
 
 	template <typename TEvent, typename TOwner>
-	void SubscribeToEvent(TOwner* owner_instance, void (TOwner::* callback_function)(TEvent&))
+	void SubscribeToEvent(TOwner* owner_instance, void (TOwner::*callback_function)(TEvent&))
 	{
 		if (!subscribers_[typeid(TEvent)].get())
 		{
