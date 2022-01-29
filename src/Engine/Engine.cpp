@@ -11,7 +11,9 @@
 #include "Components/BoxColliderComponent.h"
 #include "Components/CameraFollowConponent.h"
 #include "Components/DebugComponent.h"
+#include "Components/HealthComponent.h"
 #include "Components/KeyboardControlledComponent.h"
+#include "Components/ProjectileEmitterComponent.h"
 #include "Components/RigidBodyComponent.h"
 #include "Components/SpriteComponent.h"
 #include "Components/TransformComponent.h"
@@ -25,6 +27,8 @@
 #include "Systems/DebugSystem.h"
 #include "Systems/KeyboardControllerSystem.h"
 #include "Systems/MovementSystem.h"
+#include "Systems/ProjectileEmitterSystem.h"
+#include "Systems/ProjectileLifecycleSystem.h"
 #include "Systems/RenderSystem.h"
 
 int Engine::window_width_;
@@ -99,12 +103,15 @@ void Engine::LoadLevel(int level)
 	registry_->AddSystem<KeyboardControllerSystem>();
 	registry_->AddSystem<CameraMovementSystem>();
 	registry_->AddSystem<DebugSystem>();
+	registry_->AddSystem<ProjectileEmitterSystem>();
+	registry_->AddSystem<ProjectileLifecycleSystem>();
 
 	asset_store_->AddTexture(renderer_, "tank-image", "./assets/images/kenney/Tank-right.png");
 	asset_store_->AddTexture(renderer_, "truck-image", "./assets/images/kenney/Truck_Right.png");
 	asset_store_->AddTexture(renderer_, "tilemap-image", "./assets/tilemaps/jungle.png");
 	asset_store_->AddTexture(renderer_, "chopper-image", "./assets/images/chopper-spritesheet.png");
 	asset_store_->AddTexture(renderer_, "radar-image", "./assets/images/radar.png");
+	asset_store_->AddTexture(renderer_, "bullet-image", "./assets/images/bullet.png");
 
 	// Load the tilemap
 	int tileSize = 32;
@@ -141,6 +148,7 @@ void Engine::LoadLevel(int level)
 	chopper.AddComponent<AnimationComponent>(2, 15, true);
 	chopper.AddComponent<KeyboardControlledComponent>(glm::vec2(0, -100), glm::vec2(100, 0), glm::vec2(0, 100), glm::vec2(-100, 0));
 	chopper.AddComponent<CameraFollowComponent>();
+	chopper.AddComponent<HealthComponent>(100);
 
 
 	Entity radar = registry_->CreateEntity();
@@ -153,14 +161,18 @@ void Engine::LoadLevel(int level)
 	Entity truck = registry_->CreateEntity();
 
 	tank.AddComponent<TransformComponent>(glm::vec2(500.0, 482.0), glm::vec2(1.0, 1.0), 0.0);
-	tank.AddComponent<RigidBodyComponent>(glm::vec2(30.0, 0.0));
+	tank.AddComponent<RigidBodyComponent>(glm::vec2(0.0, 0.0));
 	tank.AddComponent<SpriteComponent>("tank-image", 64, 64, 2);
 	tank.AddComponent<BoxColliderComponent>(64, 64);
+	tank.AddComponent<ProjectileEmitterComponent>(glm::vec2(100.0, 0.0), 5000, 10000, 0, false);
+	tank.AddComponent<HealthComponent>(100);
 
 	truck.AddComponent<TransformComponent>(glm::vec2(100.0, 482.0), glm::vec2(1.0, 1.0), 0.0);
-	truck.AddComponent<RigidBodyComponent>(glm::vec2(20.0, 0.0));
+	truck.AddComponent<RigidBodyComponent>(glm::vec2(0.0, 0.0));
 	truck.AddComponent<SpriteComponent>("truck-image", 64, 64, 1);
 	truck.AddComponent<BoxColliderComponent>(64, 64);
+	truck.AddComponent<ProjectileEmitterComponent>(glm::vec2(0.0, 100.0), 2000, 6000, 0, false);
+	truck.AddComponent<HealthComponent>(100);
 	//truck.AddComponent<DebugComponent>();
 }
 
@@ -240,6 +252,8 @@ void Engine::Update()
 	registry_->GetSystem<CollisionSystem>().Update(event_bus_);
 	registry_->GetSystem<CameraMovementSystem>().Update(camera_);
 	registry_->GetSystem<DebugSystem>().Update();
+	registry_->GetSystem<ProjectileEmitterSystem>().Update(registry_);
+	registry_->GetSystem<ProjectileLifecycleSystem>().Update();
 
 	//Update Registry
 	registry_->Update();

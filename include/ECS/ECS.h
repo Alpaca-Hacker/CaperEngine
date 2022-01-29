@@ -150,7 +150,7 @@ void Registry::AddComponent(Entity entity, TArgs&&... args)
 
 	entity_component_signatures_[entity_id].set(component_id);
 
-	Logger::Log("Component id {} was added to entity id {}", component_id, entity_id);
+	//Logger::Log("Component id {} was added to entity id {}", component_id, entity_id);
 }
 
 template <typename TComponent>

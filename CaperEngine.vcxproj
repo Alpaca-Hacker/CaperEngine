@@ -146,7 +146,10 @@
   <ItemGroup>
     <ClInclude Include="include\Components\CameraFollowConponent.h" />
     <ClInclude Include="include\Components\DebugComponent.h" />
+    <ClInclude Include="include\Components\HealthComponent.h" />
     <ClInclude Include="include\Components\KeyboardControlledComponent.h" />
+    <ClInclude Include="include\Components\ProjectileComponent.h" />
+    <ClInclude Include="include\Components\ProjectileEmitterComponent.h" />
     <ClInclude Include="include\Events\CollisionEvent.h" />
     <ClInclude Include="include\Events\Event.h" />
     <ClInclude Include="include\Events\EventBus.h" />
@@ -167,6 +170,8 @@
     <ClInclude Include="include\Systems\DebugSystem.h" />
     <ClInclude Include="include\Systems\KeyboardControllerSystem.h" />
     <ClInclude Include="include\Systems\MovementSystem.h" />
+    <ClInclude Include="include\Systems\ProjectileEmitterSystem.h" />
+    <ClInclude Include="include\Systems\ProjectileLifecycleSystem.h" />
     <ClInclude Include="include\Systems\RenderSystem.h" />
     <ClInclude Include="libs\glm\common.hpp" />
     <ClInclude Include="libs\glm\detail\compute_common.hpp" />
@@ -773,6 +778,8 @@
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Systems\DamageSystem.cpp" />
     <ClCompile Include="src\Systems\KeyboardControllerSystem.cpp" />
+    <ClCompile Include="src\Systems\ProjectileEmitterSystem.cpp" />
+    <ClCompile Include="src\Systems\ProjectileLifecycleSystem.cpp" />
     <ClCompile Include="src\Systems\RenderSystem.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

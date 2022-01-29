@@ -11,8 +11,8 @@ DamageSystem::DamageSystem()
 
 void DamageSystem::OnCollision(CollisionEvent& event)
 {
-	Logger::Log("Boom! Entities {} and {} crashed!", event.a.GetId(), event.b.GetId());
-	event.b.Kill();
+	//Logger::Log("Boom! Entities {} and {} crashed!", event.a.GetId(), event.b.GetId());
+	//event.b.Kill();
 }
 
 void DamageSystem::SubscribeToEvents(std::unique_ptr<EventBus>& event_bus)
