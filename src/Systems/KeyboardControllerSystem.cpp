@@ -14,11 +14,12 @@ KeyboardControllerSystem::KeyboardControllerSystem()
 void KeyboardControllerSystem::SubscribeToEvents(std::unique_ptr<EventBus>& eventBus)
 {
 	eventBus->SubscribeToEvent<KeypressEvent>(this, &KeyboardControllerSystem::OnKeyPressed);
+	eventBus->SubscribeToEvent<KeyReleaseEvent>(this, &KeyboardControllerSystem::OnKeyReleased);
 }
 
 void KeyboardControllerSystem::OnKeyPressed(KeypressEvent& event)
 {
-	Logger::Log("Key {} ({}) pressed!", event.symbol, SDL_GetKeyName(event.symbol));
+	//Logger::Log("Key {} ({}) pressed!", event.symbol, SDL_GetKeyName(event.symbol));
 
 	for (auto entity : GetSystemEntities())
 	{
@@ -49,3 +50,32 @@ void KeyboardControllerSystem::OnKeyPressed(KeypressEvent& event)
 		}
 	}
 }
+
+void KeyboardControllerSystem::OnKeyReleased(KeyReleaseEvent& event)
+{
+	//Logger::Log("Key {} ({}) released!", event.symbol, SDL_GetKeyName(event.symbol));
+
+	for (auto entity : GetSystemEntities())
+	{
+		auto& rigid_body = entity.GetComponent<RigidBodyComponent>();
+
+		switch (event.symbol)
+		{
+		case SDLK_UP:
+			rigid_body.velocity.y = 0;
+			break;
+		case SDLK_RIGHT:
+			rigid_body.velocity.x = 0;
+			break;
+		case SDLK_DOWN:
+			rigid_body.velocity.y = 0;
+			break;
+		case SDLK_LEFT:
+			rigid_body.velocity.x = 0;
+			break;
+		default:
+			break;
+		}
+	}
+}
+

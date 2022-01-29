@@ -12,8 +12,10 @@ constexpr int MILLISECS_PER_FRAME = 1000 / FPS;
 class Engine
 {
 public:
-	int window_width_;
-	int window_height_;
+	static int window_width_;
+	static int window_height_;
+	static int map_width_;
+	static int map_height_;
 
 	Engine();
 	~Engine();
@@ -35,6 +37,7 @@ private:
 	bool is_running_;
 	int millisecs_prev_frame_;
 	bool display_hit_boxes_;
+	SDL_Rect camera_;
 
 	std::unique_ptr<Registry> registry_;
 	std::unique_ptr<AssetStore> asset_store_;

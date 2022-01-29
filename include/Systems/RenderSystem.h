@@ -15,5 +15,5 @@ public:
 		RequireComponent<SpriteComponent>();
 	}
 
-	void Update(SDL_Renderer* renderer, const std::unique_ptr<AssetStore>& asset_store);
+	void Update(SDL_Renderer* renderer, const std::unique_ptr<AssetStore>& asset_store, SDL_Rect camera);
 };

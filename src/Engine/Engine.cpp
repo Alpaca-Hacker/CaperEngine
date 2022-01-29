@@ -9,6 +9,8 @@
 #include "AssetStore/AssetStore.h"
 #include "Components/AnimationComponent.h"
 #include "Components/BoxColliderComponent.h"
+#include "Components/CameraFollowConponent.h"
+#include "Components/DebugComponent.h"
 #include "Components/KeyboardControlledComponent.h"
 #include "Components/RigidBodyComponent.h"
 #include "Components/SpriteComponent.h"
@@ -16,12 +18,19 @@
 #include "Events/KeypressEvent.h"
 #include "Log/Logger.h"
 #include "Systems/AnimationSystem.h"
+#include "Systems/CameraMovementSystem.h"
 #include "Systems/CollisionSystem.h"
 #include "Systems/DamageSystem.h"
 #include "Systems/DebugHitBoxSystem.h"
+#include "Systems/DebugSystem.h"
 #include "Systems/KeyboardControllerSystem.h"
 #include "Systems/MovementSystem.h"
 #include "Systems/RenderSystem.h"
+
+int Engine::window_width_;
+int Engine::window_height_;
+int Engine::map_width_;
+int Engine::map_height_;
 
 Engine::Engine() : display_hit_boxes_(false)
 {
@@ -70,6 +79,11 @@ void Engine::Initialise()
 	}
 	//SDL_SetWindowFullscreen(window_, SDL_WINDOW_FULLSCREEN);
 
+	camera_.x = 0;
+	camera_.y = 0;
+	camera_.w = window_width_;
+	camera_.h = window_height_;
+
 	is_running_ = true;
 }
 
@@ -83,6 +97,8 @@ void Engine::LoadLevel(int level)
 	registry_->AddSystem<CollisionSystem>();
 	registry_->AddSystem<DamageSystem>();
 	registry_->AddSystem<KeyboardControllerSystem>();
+	registry_->AddSystem<CameraMovementSystem>();
+	registry_->AddSystem<DebugSystem>();
 
 	asset_store_->AddTexture(renderer_, "tank-image", "./assets/images/kenney/Tank-right.png");
 	asset_store_->AddTexture(renderer_, "truck-image", "./assets/images/kenney/Truck_Right.png");
@@ -110,29 +126,34 @@ void Engine::LoadLevel(int level)
 
 			Entity tile = registry_->CreateEntity();
 			tile.AddComponent<TransformComponent>(glm::vec2(x * (tileScale * tileSize), y * (tileScale * tileSize)), glm::vec2(tileScale, tileScale), 0.0);
-			tile.AddComponent<SpriteComponent>("tilemap-image", tileSize, tileSize, 0, srcRectX, srcRectY);
+			tile.AddComponent<SpriteComponent>("tilemap-image", tileSize, tileSize, 0, false, srcRectX, srcRectY);
 		}
 	}
 	map_file.close();
 
+	map_width_ = mapNumCols * tileSize * tileScale;
+	map_height_ = mapNumRows * tileSize * tileScale;
+
 	Entity chopper = registry_->CreateEntity();
 	chopper.AddComponent<TransformComponent>(glm::vec2(100.0, 100.0), glm::vec2(2.0, 2.0), 0.0);
 	chopper.AddComponent<RigidBodyComponent>(glm::vec2(0.0, 0.0));
-	chopper.AddComponent<SpriteComponent>("chopper-image", 32, 32, 1);
+	chopper.AddComponent<SpriteComponent>("chopper-image", 32, 32, 10);
 	chopper.AddComponent<AnimationComponent>(2, 15, true);
-	chopper.AddComponent<KeyboardControlledComponent>(glm::vec2(0, -20), glm::vec2(20, 0), glm::vec2(0, 20), glm::vec2(-20, 0));
+	chopper.AddComponent<KeyboardControlledComponent>(glm::vec2(0, -100), glm::vec2(100, 0), glm::vec2(0, 100), glm::vec2(-100, 0));
+	chopper.AddComponent<CameraFollowComponent>();
+
 
 	Entity radar = registry_->CreateEntity();
 	radar.AddComponent<TransformComponent>(glm::vec2(window_width_ - 74, 10), glm::vec2(1.0, 1.0), 0.0);
 	radar.AddComponent<RigidBodyComponent>(glm::vec2(0.0, 0.0));
-	radar.AddComponent<SpriteComponent>("radar-image", 64, 64, 2);
+	radar.AddComponent<SpriteComponent>("radar-image", 64, 64, 200, true);
 	radar.AddComponent<AnimationComponent>(8, 7, true);
 
 	Entity tank = registry_->CreateEntity();
 	Entity truck = registry_->CreateEntity();
 
 	tank.AddComponent<TransformComponent>(glm::vec2(500.0, 482.0), glm::vec2(1.0, 1.0), 0.0);
-	tank.AddComponent<RigidBodyComponent>(glm::vec2(-30.0, 0.0));
+	tank.AddComponent<RigidBodyComponent>(glm::vec2(30.0, 0.0));
 	tank.AddComponent<SpriteComponent>("tank-image", 64, 64, 2);
 	tank.AddComponent<BoxColliderComponent>(64, 64);
 
@@ -140,6 +161,7 @@ void Engine::LoadLevel(int level)
 	truck.AddComponent<RigidBodyComponent>(glm::vec2(20.0, 0.0));
 	truck.AddComponent<SpriteComponent>("truck-image", 64, 64, 1);
 	truck.AddComponent<BoxColliderComponent>(64, 64);
+	//truck.AddComponent<DebugComponent>();
 }
 
 void Engine::Setup()
@@ -170,6 +192,9 @@ void Engine::ProcessInput()
 			break;
 		case SDL_KEYDOWN:
 			event_bus_->EmitEvent<KeypressEvent>(sdl_event.key.keysym.sym);
+			break;
+		case SDL_KEYUP:
+			event_bus_->EmitEvent<KeyReleaseEvent>(sdl_event.key.keysym.sym);
 			break;
 		default:
 			break;
@@ -213,6 +238,8 @@ void Engine::Update()
 	registry_->GetSystem<MovementSystem>().Update(delta_time);
 	registry_->GetSystem<AnimationSystem>().Update();
 	registry_->GetSystem<CollisionSystem>().Update(event_bus_);
+	registry_->GetSystem<CameraMovementSystem>().Update(camera_);
+	registry_->GetSystem<DebugSystem>().Update();
 
 	//Update Registry
 	registry_->Update();
@@ -222,10 +249,10 @@ void Engine::Render()
 {
 	SDL_SetRenderDrawColor(renderer_, 0x15, 0x15, 0x15, 0xFF);
 	SDL_RenderClear(renderer_);
-	registry_->GetSystem<RenderSystem>().Update(renderer_, asset_store_);
+	registry_->GetSystem<RenderSystem>().Update(renderer_, asset_store_, camera_);
 
 	if (display_hit_boxes_) {
-		registry_->GetSystem<DebugHitBoxSystem>().Update(renderer_);
+		registry_->GetSystem<DebugHitBoxSystem>().Update(renderer_, camera_);
 	}
 	SDL_RenderPresent(renderer_);
 }

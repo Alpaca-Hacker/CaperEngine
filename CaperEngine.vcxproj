@@ -144,6 +144,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\Components\CameraFollowConponent.h" />
+    <ClInclude Include="include\Components\DebugComponent.h" />
     <ClInclude Include="include\Components\KeyboardControlledComponent.h" />
     <ClInclude Include="include\Events\CollisionEvent.h" />
     <ClInclude Include="include\Events\Event.h" />
@@ -158,9 +160,11 @@
     <ClInclude Include="include\Events\KeypressEvent.h" />
     <ClInclude Include="include\Log\Logger.h" />
     <ClInclude Include="include\Systems\AnimationSystem.h" />
+    <ClInclude Include="include\Systems\CameraMovementSystem.h" />
     <ClInclude Include="include\Systems\DamageSystem.h" />
     <ClInclude Include="include\Systems\DebugHitBoxSystem.h" />
     <ClInclude Include="include\Systems\CollisionSystem.h" />
+    <ClInclude Include="include\Systems\DebugSystem.h" />
     <ClInclude Include="include\Systems\KeyboardControllerSystem.h" />
     <ClInclude Include="include\Systems\MovementSystem.h" />
     <ClInclude Include="include\Systems\RenderSystem.h" />
@@ -753,6 +757,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Events\EventBus.cpp" />
+    <ClCompile Include="src\Systems\CameraMovementSystem.cpp" />
     <ClCompile Include="src\Systems\CollisionSystem.cpp" />
     <ClCompile Include="src\Systems\AnimationSystem.cpp" />
     <ClCompile Include="src\AssetStore\AssetStore.cpp" />

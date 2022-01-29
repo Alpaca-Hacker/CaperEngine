@@ -10,7 +10,7 @@ struct EntityToRender
 	SpriteComponent sprite_component;
 };
 
-void RenderSystem::Update(SDL_Renderer* renderer, const std::unique_ptr<AssetStore>& asset_store)
+void RenderSystem::Update(SDL_Renderer* renderer, const std::unique_ptr<AssetStore>& asset_store, SDL_Rect camera)
 {
 	std::vector<EntityToRender> entities_to_render;
 
@@ -38,8 +38,8 @@ void RenderSystem::Update(SDL_Renderer* renderer, const std::unique_ptr<AssetSto
 		SDL_Rect src_rect = sprite.src_rect;
 
 		SDL_Rect dest_rect{
-			static_cast<int>(transform.position.x),
-			static_cast<int>(transform.position.y),
+			static_cast<int>(transform.position.x - (sprite.is_fixed ? 0 : camera.x)),
+			static_cast<int>(transform.position.y - (sprite.is_fixed ? 0 : camera.y)),
 			static_cast<int>(static_cast<float>(sprite.width) * transform.scale.x),
 			static_cast<int>(static_cast<float>(sprite.height) * transform.scale.y)
 		};

@@ -10,6 +10,7 @@ public:
     void SubscribeToEvents(std::unique_ptr<EventBus>& eventBus);
 
     void OnKeyPressed(KeypressEvent& event);
+    void OnKeyReleased(KeyReleaseEvent& event);
 
     static void Update() { }
 };

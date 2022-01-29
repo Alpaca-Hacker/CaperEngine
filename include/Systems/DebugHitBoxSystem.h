@@ -14,7 +14,7 @@ public:
 		RequireComponent<BoxColliderComponent>();
 	}
 
-	void Update(SDL_Renderer* renderer)
+	void Update(SDL_Renderer* renderer, SDL_Rect camera)
 	{
 		for (auto entity : GetSystemEntities())
 		{
@@ -22,8 +22,8 @@ public:
 			const auto& collider = entity.GetComponent<BoxColliderComponent>();
 
 			SDL_Rect rect{
-				static_cast<int>((transform.position.x * transform.scale.x) + (collider.offset.x * transform.scale.x)),
-				static_cast<int>((transform.position.y * transform.scale.y) + (collider.offset.y * transform.scale.y)),
+				static_cast<int>((transform.position.x * transform.scale.x) + (collider.offset.x * transform.scale.x) - camera.x),
+				static_cast<int>((transform.position.y * transform.scale.y) + (collider.offset.y * transform.scale.y) - camera.y),
 				static_cast<int>(collider.width * transform.scale.x),
 				static_cast<int>(collider.height * transform.scale.y)
 			};
