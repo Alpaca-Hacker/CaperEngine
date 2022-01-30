@@ -10,5 +10,9 @@ public:
 
 	void SubscribeToEvents(std::unique_ptr<EventBus>& event_bus);
 
+	void OnProjectileHitsPlayer(Entity& entity, Entity& entity1);
+	void OnProjectileHitsEnemy(Entity& projectile, Entity& enemy);
 	void OnCollision(CollisionEvent& event);
 };
+
+

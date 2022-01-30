@@ -114,38 +114,41 @@ void Engine::LoadLevel(int level)
 	asset_store_->AddTexture(renderer_, "bullet-image", "./assets/images/bullet.png");
 
 	// Load the tilemap
-	int tileSize = 32;
-	double tileScale = 2.0;
-	int mapNumCols = 25;
-	int mapNumRows = 20;
+	int tile_size = 32;
+	double tile_scale = 2.0;
+	int map_num_cols = 25;
+	int map_num_rows = 20;
 
 	std::fstream map_file;
 	map_file.open("./assets/tilemaps/jungle.map");
 
-	for (int y = 0; y < mapNumRows; y++) {
-		for (int x = 0; x < mapNumCols; x++) {
+	for (int y = 0; y < map_num_rows; y++) {
+		for (int x = 0; x < map_num_cols; x++) {
 			char ch;
 			map_file.get(ch);
-			int srcRectY = std::atoi(&ch) * tileSize;
+			int srcRectY = std::atoi(&ch) * tile_size;
 			map_file.get(ch);
-			int srcRectX = std::atoi(&ch) * tileSize;
+			int srcRectX = std::atoi(&ch) * tile_size;
 			map_file.ignore();
 
 			Entity tile = registry_->CreateEntity();
-			tile.AddComponent<TransformComponent>(glm::vec2(x * (tileScale * tileSize), y * (tileScale * tileSize)), glm::vec2(tileScale, tileScale), 0.0);
-			tile.AddComponent<SpriteComponent>("tilemap-image", tileSize, tileSize, 0, false, srcRectX, srcRectY);
+			tile.AddComponent<TransformComponent>(glm::vec2(x * (tile_scale * tile_size), y * (tile_scale * tile_size)), glm::vec2(tile_scale, tile_scale), 0.0);
+			tile.AddComponent<SpriteComponent>("tilemap-image", tile_size, tile_size, 0, false, srcRectX, srcRectY);
+			tile.Group("tile");
 		}
 	}
 	map_file.close();
 
-	map_width_ = mapNumCols * tileSize * tileScale;
-	map_height_ = mapNumRows * tileSize * tileScale;
+	map_width_ = map_num_cols * tile_size * tile_scale;
+	map_height_ = map_num_rows * tile_size * tile_scale;
 
 	Entity chopper = registry_->CreateEntity();
-	chopper.AddComponent<TransformComponent>(glm::vec2(100.0, 100.0), glm::vec2(2.0, 2.0), 0.0);
+	chopper.Tag("player");
+	chopper.AddComponent<TransformComponent>(glm::vec2(100.0, 100.0), glm::vec2(1.0, 1.0), 0.0);
 	chopper.AddComponent<RigidBodyComponent>(glm::vec2(0.0, 0.0));
 	chopper.AddComponent<SpriteComponent>("chopper-image", 32, 32, 10);
 	chopper.AddComponent<AnimationComponent>(2, 15, true);
+	chopper.AddComponent<BoxColliderComponent>(32, 32);
 	chopper.AddComponent<KeyboardControlledComponent>(glm::vec2(0, -100), glm::vec2(100, 0), glm::vec2(0, 100), glm::vec2(-100, 0));
 	chopper.AddComponent<CameraFollowComponent>();
 	chopper.AddComponent<HealthComponent>(100);
@@ -153,6 +156,8 @@ void Engine::LoadLevel(int level)
 
 
 	Entity radar = registry_->CreateEntity();
+	radar.Tag("radar");
+	radar.Group("ui");
 	radar.AddComponent<TransformComponent>(glm::vec2(window_width_ - 74, 10), glm::vec2(1.0, 1.0), 0.0);
 	radar.AddComponent<RigidBodyComponent>(glm::vec2(0.0, 0.0));
 	radar.AddComponent<SpriteComponent>("radar-image", 64, 64, 200, true);
@@ -161,18 +166,22 @@ void Engine::LoadLevel(int level)
 	Entity tank = registry_->CreateEntity();
 	Entity truck = registry_->CreateEntity();
 
+	tank.Tag("tank");
+	tank.Group("enemy");
 	tank.AddComponent<TransformComponent>(glm::vec2(500.0, 482.0), glm::vec2(1.0, 1.0), 0.0);
 	tank.AddComponent<RigidBodyComponent>(glm::vec2(0.0, 0.0));
 	tank.AddComponent<SpriteComponent>("tank-image", 64, 64, 2);
 	tank.AddComponent<BoxColliderComponent>(64, 64);
-	tank.AddComponent<ProjectileEmitterComponent>(glm::vec2(100.0, 0.0), 5000, 10000, 0, false);
+	tank.AddComponent<ProjectileEmitterComponent>(glm::vec2(100.0, 0.0), 5000, 10000, 25, false);
 	tank.AddComponent<HealthComponent>(100);
 
+	truck.Tag("truck");
+	truck.Group("enemy");
 	truck.AddComponent<TransformComponent>(glm::vec2(100.0, 482.0), glm::vec2(1.0, 1.0), 0.0);
 	truck.AddComponent<RigidBodyComponent>(glm::vec2(0.0, 0.0));
 	truck.AddComponent<SpriteComponent>("truck-image", 64, 64, 1);
 	truck.AddComponent<BoxColliderComponent>(64, 64);
-	truck.AddComponent<ProjectileEmitterComponent>(glm::vec2(0.0, 100.0), 2000, 6000, 0, false);
+	truck.AddComponent<ProjectileEmitterComponent>(glm::vec2(0.0, 100.0), 2000, 6000, 10, false);
 	truck.AddComponent<HealthComponent>(100);
 	//truck.AddComponent<DebugComponent>();
 }

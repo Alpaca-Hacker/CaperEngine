@@ -40,6 +40,12 @@ public:
 
 	[[nodiscard]] int GetId() const { return id_; }
 	void Kill();
+
+	void Tag(const std::string& tag);
+	bool HasTag(const std::string& tag) const;
+	void Group(const std::string& group) ;
+	bool BelongsToGroup(const std::string& group)const;
+
 	template <typename TComponent, typename ...TArgs> void AddComponent(TArgs&& ...args);
 	template <typename TComponent> void RemoveComponent();
 	template <typename TComponent> bool HasComponent() const;
@@ -94,6 +100,19 @@ public:
 	template <typename TSystem> bool HasSystem(Entity entity);
 	template <typename TSystem> TSystem& GetSystem() const;
 
+	//Tags
+	void TagEntity(Entity entity, const std::string& tag);
+	bool EntityHasTag(Entity entity, const std::string& tag) const;
+	Entity GetEntityByTag(const std::string& tag);
+	void RemoveEntityTag(Entity entity);
+
+	//Groups
+	void GroupEntity(Entity entity, const std::string& group);
+	bool EntityBelongsToGroup(Entity entity, const std::string& group) const;
+	std::vector<Entity> GetEntityByGroup(const std::string& group);
+	void RemoveEntityGroup(Entity entity);
+
+
 	void AddEntityToSystems(Entity entity);
 	void RemoveEntityFromSystems(Entity entity);
 
@@ -102,11 +121,17 @@ private:
 	std::set<Entity> entities_to_be_added_;
 	std::set<Entity> entities_to_be_removed_;
 
+	std::unordered_map<std::string, Entity> entity_per_tag;
+	std::unordered_map<int, std::string> tag_per_entity;
+	std::unordered_map<std::string, std::set<Entity>> entity_per_group;
+	std::unordered_map<int, std::string> group_per_entity;
+
 	std::vector<std::shared_ptr<IPool>> component_pools_;
 
 	std::vector<Signature> entity_component_signatures_;
 	std::unordered_map<std::type_index, std::shared_ptr<System>> systems;
 	std::deque<int> free_ids_;
+
 };
 
 /*

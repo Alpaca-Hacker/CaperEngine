@@ -35,6 +35,7 @@ void ProjectileEmitterSystem::Update(std::unique_ptr<Registry>& registry)
 			projectile.AddComponent<SpriteComponent>("bullet-image", 4, 4, 4);
 			projectile.AddComponent<BoxColliderComponent>( 4, 4, glm::vec2(0, 0));
 			projectile.AddComponent<ProjectileComponent>(emitter.is_friendly, emitter.hit_percent_damage, emitter.projectile_duration);
+			projectile.Group("projectile");
 
 			emitter.last_emission_time = SDL_GetTicks64();
 		}
