@@ -1,6 +1,7 @@
 #include "Systems/KeyboardControllerSystem.h"
 
 #include "Components/KeyboardControlledComponent.h"
+#include "Components/ProjectileEmitterComponent.h"
 #include "Components/RigidBodyComponent.h"
 #include "Components/SpriteComponent.h"
 
@@ -32,19 +33,45 @@ void KeyboardControllerSystem::OnKeyPressed(KeypressEvent& event)
 		case SDLK_UP:
 			rigid_body.velocity = keyboard.up_velocity;
 			sprite.src_rect.y = sprite.height * 0;
+			if (entity.HasComponent<ProjectileEmitterComponent>())
+			{
+				auto& emitter = entity.GetComponent<ProjectileEmitterComponent>();
+				emitter.projectile_velocity = glm::vec2(0, -300);
+			}
 			break;
 		case SDLK_RIGHT:
 			rigid_body.velocity = keyboard.right_velocity;
 			sprite.src_rect.y = sprite.height * 1;
+			if (entity.HasComponent<ProjectileEmitterComponent>())
+			{
+				auto& emitter = entity.GetComponent<ProjectileEmitterComponent>();
+				emitter.projectile_velocity = glm::vec2(300, 0);
+			}
 			break;
 		case SDLK_DOWN:
 			rigid_body.velocity = keyboard.down_velocity;
 			sprite.src_rect.y = sprite.height * 2;
+			if (entity.HasComponent<ProjectileEmitterComponent>())
+			{
+				auto& emitter = entity.GetComponent<ProjectileEmitterComponent>();
+				emitter.projectile_velocity = glm::vec2(0, 300);
+			}
 			break;
 		case SDLK_LEFT:
 			rigid_body.velocity = keyboard.left_velocity;
 			sprite.src_rect.y = sprite.height * 3;
+			if (entity.HasComponent<ProjectileEmitterComponent>())
+			{
+				auto& emitter = entity.GetComponent<ProjectileEmitterComponent>();
+				emitter.projectile_velocity = glm::vec2(-300, 0);
+			}
 			break;
+		case SDLK_SPACE:
+			if (entity.HasComponent<ProjectileEmitterComponent>())
+			{
+				auto& emitter = entity.GetComponent<ProjectileEmitterComponent>();
+				emitter.last_emission_time = -1000000;
+			}
 		default:
 			break;
 		}

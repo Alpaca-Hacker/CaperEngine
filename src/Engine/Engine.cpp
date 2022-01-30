@@ -149,6 +149,7 @@ void Engine::LoadLevel(int level)
 	chopper.AddComponent<KeyboardControlledComponent>(glm::vec2(0, -100), glm::vec2(100, 0), glm::vec2(0, 100), glm::vec2(-100, 0));
 	chopper.AddComponent<CameraFollowComponent>();
 	chopper.AddComponent<HealthComponent>(100);
+	chopper.AddComponent<ProjectileEmitterComponent>(glm::vec2(0.0, -300.0), 1000000, 10000, 10, true);
 
 
 	Entity radar = registry_->CreateEntity();
