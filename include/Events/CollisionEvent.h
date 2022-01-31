@@ -1,12 +1,13 @@
 ﻿#pragma once
-#include "ECS/ECS.h"
+#include <entt/entt.hpp>
+
 #include "Events/Event.h"
 
 class CollisionEvent : public Event
 {
 public:
-	Entity a;
-	Entity b;
+	entt::entity a;
+	entt::entity b;
 
-	CollisionEvent(Entity a, Entity b) : a(a), b(b) {}
+	CollisionEvent(entt::entity a, entt::entity b) : a(a), b(b) {}
 };

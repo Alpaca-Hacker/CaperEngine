@@ -150,6 +150,7 @@
     <ClInclude Include="include\Components\KeyboardControlledComponent.h" />
     <ClInclude Include="include\Components\ProjectileComponent.h" />
     <ClInclude Include="include\Components\ProjectileEmitterComponent.h" />
+    <ClInclude Include="include\Components\Tags.h" />
     <ClInclude Include="include\Events\CollisionEvent.h" />
     <ClInclude Include="include\Events\Event.h" />
     <ClInclude Include="include\Events\EventBus.h" />
@@ -158,8 +159,6 @@
     <ClInclude Include="include\Components\BoxColliderComponent.h" />
     <ClInclude Include="include\Components\RigidBodyComponent.h" />
     <ClInclude Include="include\Components\SpriteComponent.h" />
-    <ClInclude Include="include\ECS\ECS.h" />
-    <ClInclude Include="include\ECS\Pool.h" />
     <ClInclude Include="include\Events\KeypressEvent.h" />
     <ClInclude Include="include\Log\Logger.h" />
     <ClInclude Include="include\Systems\AnimationSystem.h" />
@@ -168,6 +167,7 @@
     <ClInclude Include="include\Systems\DebugHitBoxSystem.h" />
     <ClInclude Include="include\Systems\CollisionSystem.h" />
     <ClInclude Include="include\Systems\DebugSystem.h" />
+    <ClInclude Include="include\Systems\JanitorSystem.h" />
     <ClInclude Include="include\Systems\KeyboardControllerSystem.h" />
     <ClInclude Include="include\Systems\MovementSystem.h" />
     <ClInclude Include="include\Systems\ProjectileEmitterSystem.h" />
@@ -766,7 +766,6 @@
     <ClCompile Include="src\Systems\CollisionSystem.cpp" />
     <ClCompile Include="src\Systems\AnimationSystem.cpp" />
     <ClCompile Include="src\AssetStore\AssetStore.cpp" />
-    <ClCompile Include="src\ECS\ECS.cpp" />
     <ClCompile Include="src\Engine\Engine.cpp" />
     <ClCompile Include="libs\glm\detail\glm.cpp" />
     <ClCompile Include="libs\imgui\imgui.cpp" />
@@ -777,6 +776,7 @@
     <ClCompile Include="src\Log\Logger.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Systems\DamageSystem.cpp" />
+    <ClCompile Include="src\Systems\JanitorSystem.cpp" />
     <ClCompile Include="src\Systems\KeyboardControllerSystem.cpp" />
     <ClCompile Include="src\Systems\ProjectileEmitterSystem.cpp" />
     <ClCompile Include="src\Systems\ProjectileLifecycleSystem.cpp" />

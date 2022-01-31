@@ -1,13 +1,13 @@
 ﻿#pragma once
-#include "ECS/ECS.h"
+#include <entt/entt.hpp>
+
 #include "Events/EventBus.h"
 
-class CollisionSystem : public System
+class CollisionSystem 
 {
 public:
-	CollisionSystem();
 
-	void Update(std::unique_ptr<EventBus>& event_bus);
+	void Update(entt::registry& registry, std::unique_ptr<EventBus>& event_bus);
 	bool CheckAABBCollision(double a_x, double a_y, double a_w, double a_h,
 		double b_x, double b_y, double b_w, double b_h);
 };

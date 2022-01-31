@@ -5,22 +5,15 @@
 #include "Engine/Engine.h"
 #include "glm/common.hpp"
 
-CameraMovementSystem::CameraMovementSystem()
-{
-	RequireComponent<CameraFollowComponent>();
-	RequireComponent<TransformComponent>();
-}
 
-void CameraMovementSystem::Update(SDL_Rect& camera)
+void CameraMovementSystem::Update(entt::registry& registry, SDL_Rect& camera)
 {
-	for (auto entity : GetSystemEntities())
+	for (auto entity : registry.view<TransformComponent, CameraFollowComponent>())
 	{
-		auto& transform = entity.GetComponent<TransformComponent>();
+		auto& transform = registry.get<TransformComponent>(entity);
 
-			camera.x = glm::clamp<int>( transform.position.x - (camera.w / 2), 0, Engine::map_width_ - camera.w);
-
-
-			camera.y = glm::clamp<int>(transform.position.y - (camera.h / 2), 0, Engine::map_height_ - camera.h);
+		camera.x = glm::clamp<int>(transform.position.x - (camera.w / 2), 0, Engine::map_width_ - camera.w);
+		camera.y = glm::clamp<int>(transform.position.y - (camera.h / 2), 0, Engine::map_height_ - camera.h);
 
 
 		//Logger::Log("Camera now at position [{}, {}]", transform.position.x, transform.position.y);

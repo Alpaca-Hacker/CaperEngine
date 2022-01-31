@@ -1,10 +1,9 @@
 ﻿#pragma once
-#include "ECS/ECS.h"
+#include <entt/entt.hpp>
 
-class ProjectileEmitterSystem : public System
+class ProjectileEmitterSystem 
 {
 public:
-	ProjectileEmitterSystem();
 
-	void Update(std::unique_ptr<Registry>& registry);
+	void Update(entt::registry& registry);
 };

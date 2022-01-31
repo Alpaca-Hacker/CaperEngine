@@ -1,27 +1,24 @@
 #pragma once
 #include "Components/RigidBodyComponent.h"
 #include "Components/TransformComponent.h"
-#include "ECS/ECS.h"
 
-class MovementSystem : public System
+class MovementSystem 
 {
 public:
-	MovementSystem()
-	{
-		RequireComponent<TransformComponent>();
-		RequireComponent<RigidBodyComponent>();
-	}
+	MovementSystem() = default;
 
-	void Update(double delta_time)
+
+	void Update(entt::registry& registry, double delta_time)
 	{
-		for (auto entity : GetSystemEntities())
+		const auto& cregistry = registry;
+		for (auto entity : registry.view<TransformComponent, RigidBodyComponent>())
 		{
-			auto& transform = entity.GetComponent<TransformComponent>();
-			const auto& rigid_body = entity.GetComponent<RigidBodyComponent>();
+			auto [transform, rigid_body] = registry.get<TransformComponent, RigidBodyComponent>(entity);
+
 			auto distance = glm::vec2(0);
-			if (entity.HasComponent<SpriteComponent>())
+			if (registry.any_of<SpriteComponent>(entity))
 			{
-				const auto sprite = entity.GetComponent<SpriteComponent>();
+				const auto &sprite = cregistry.get<SpriteComponent>(entity);
 				distance.x = sprite.width * transform.scale.x;
 				distance.y = sprite.height * transform.scale.y;
 			}

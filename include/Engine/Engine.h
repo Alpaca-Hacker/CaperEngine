@@ -1,8 +1,8 @@
 #pragma once
 #include <SDL.h>
+#include <entt/entt.hpp>
 
 #include "AssetStore/AssetStore.h"
-#include "ECS/ECS.h"
 #include "Events/EventBus.h"
 #include "Events/KeypressEvent.h"
 
@@ -23,6 +23,7 @@ public:
 	void Initialise();
 	void LoadLevel(int level);
 	void Setup();
+	void OnEndOfFrame();
 	void Run();
 	void ProcessInput();
 	void OnKeypress(KeypressEvent& event);
@@ -36,10 +37,10 @@ private:
 	SDL_Renderer* renderer_;
 	bool is_running_;
 	int millisecs_prev_frame_;
-	bool display_hit_boxes_;
+	bool debug_mode_;
 	SDL_Rect camera_;
 
-	std::unique_ptr<Registry> registry_;
+	entt::registry registry_;
 	std::unique_ptr<AssetStore> asset_store_;
 	std::unique_ptr<EventBus> event_bus_;
 };

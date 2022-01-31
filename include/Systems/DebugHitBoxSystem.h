@@ -3,23 +3,16 @@
 
 #include "Components/BoxColliderComponent.h"
 #include "Components/TransformComponent.h"
-#include "ECS/ECS.h"
 
-class DebugHitBoxSystem : public System
+class DebugHitBoxSystem 
 {
 public:
-	DebugHitBoxSystem()
-	{
-		RequireComponent<TransformComponent>();
-		RequireComponent<BoxColliderComponent>();
-	}
 
-	void Update(SDL_Renderer* renderer, SDL_Rect camera)
+	void Update(const entt::registry& registry,SDL_Renderer* renderer, SDL_Rect camera)
 	{
-		for (auto entity : GetSystemEntities())
+		for (auto entity : registry.view<BoxColliderComponent, TransformComponent>())
 		{
-			const auto& transform = entity.GetComponent<TransformComponent>();
-			const auto& collider = entity.GetComponent<BoxColliderComponent>();
+			auto [transform, collider] = registry.get<TransformComponent, BoxColliderComponent>(entity);
 
 			SDL_Rect rect{
 				static_cast<int>((transform.position.x * transform.scale.x) + (collider.offset.x * transform.scale.x) - camera.x),

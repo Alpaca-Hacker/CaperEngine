@@ -1,12 +1,10 @@
 ﻿#pragma once
 #include <SDL.h>
+#include <entt/entt.hpp>
 
-#include "ECS/ECS.h"
-
-class CameraMovementSystem : public System
+class CameraMovementSystem 
 {
 public:
-	CameraMovementSystem();
 
-	void Update(SDL_Rect& camera);
+	void Update(entt::registry& registry, SDL_Rect& camera);
 };

@@ -4,33 +4,28 @@
 #include "Components/TransformComponent.h"
 #include "Engine/Engine.h"
 
-ProjectileLifecycleSystem::ProjectileLifecycleSystem()
-{
-	RequireComponent<ProjectileComponent>();
-}
 
-void ProjectileLifecycleSystem::Update()
+void ProjectileLifecycleSystem::Update(entt::registry& registry)
 {
-	for (auto entity : GetSystemEntities())
+	for (auto entity : registry.view<ProjectileComponent>())
 	{
-		auto& projectile = entity.GetComponent<ProjectileComponent>();
+		auto& projectile = registry.get<ProjectileComponent>(entity);
 
 		if (SDL_GetTicks64() - projectile.start_time > projectile.duration)
 		{
-			entity.Kill();
+			registry.destroy(entity);
 		}
 		else {
-			if (entity.HasComponent<TransformComponent>())
+			if (registry.any_of<TransformComponent>(entity))
 			{
-				const auto transform = entity.GetComponent<TransformComponent>();
+				const auto transform = registry.get<TransformComponent>(entity);
 
 				if (transform.position.x <= 0 || transform.position.x >= Engine::map_width_ - 5
 					|| transform.position.y <= 0 || transform.position.y >= Engine::map_height_ - 5)
 				{
-					entity.Kill();
+					registry.destroy(entity);
 				}
 			}
 		}
 	}
-		
 }

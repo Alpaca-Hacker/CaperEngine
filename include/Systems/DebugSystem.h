@@ -2,23 +2,17 @@
 #include "Components/DebugComponent.h"
 #include "Components/RigidBodyComponent.h"
 #include "Components/TransformComponent.h"
-#include "ECS/ECS.h"
 
-class DebugSystem : public System
+class DebugSystem 
 {
 public:
-	DebugSystem()
-	{
-		RequireComponent<DebugComponent>();
-	}
 
-	void Update() {
-		for (auto entity : GetSystemEntities())
+	void Update(entt::registry& registry) {
+		for (auto entity : registry.view<DebugComponent>())
 		{
-			const auto transform = entity.GetComponent<TransformComponent>();
-			const auto rigid_body = entity.GetComponent<RigidBodyComponent>();
+			auto [transform, rigid_body] = registry.get<TransformComponent, RigidBodyComponent>(entity);
 
-			Logger::Log("Entity {} now at position [{}, {}] with velocity [{}, {}]", entity.GetId(), transform.position.x, transform.position.y, 
+			Logger::Log("Entity {} now at position [{}, {}] with velocity [{}, {}]", entity, transform.position.x, transform.position.y, 
 				rigid_body.velocity.x, rigid_body.velocity.y);
 
 		}

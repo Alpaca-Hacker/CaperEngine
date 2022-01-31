@@ -1,10 +1,10 @@
 ﻿#pragma once
-#include "ECS/ECS.h"
+#include <entt/entt.hpp>
 
-class ProjectileLifecycleSystem: public System
+
+class ProjectileLifecycleSystem
 {
 public:
-	ProjectileLifecycleSystem();
 
-	void Update();
+	void Update(entt::registry& registry);
 };

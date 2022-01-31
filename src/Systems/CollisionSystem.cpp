@@ -1,31 +1,32 @@
 ﻿#include "Systems/CollisionSystem.h"
 
+#include <entt/entt.hpp>
+
 #include "Components/BoxColliderComponent.h"
 #include "Components/TransformComponent.h"
 #include "Events/CollisionEvent.h"
 #include "Events/EventBus.h"
+#include "Log/Logger.h"
 
-CollisionSystem::CollisionSystem()
-{
-	RequireComponent<BoxColliderComponent>();
-	RequireComponent<TransformComponent>();
-}
 
-void CollisionSystem::Update(std::unique_ptr<EventBus>& event_bus)
+void CollisionSystem::Update(entt::registry& registry, std::unique_ptr<EventBus>& event_bus)
 {
-	auto entities = GetSystemEntities();
+	auto entities = registry.view<TransformComponent, BoxColliderComponent>();
 	for (auto i = entities.begin(); i != entities.end(); ++i)
 	{
-		Entity a = *i;
-		const auto transform_a = i->GetComponent<TransformComponent>();
-		auto& collider_a = i->GetComponent<BoxColliderComponent>();
+		entt::entity a = *i;
+		auto [transform_a, collider_a] = registry.get<TransformComponent, BoxColliderComponent>(a);
 		bool has_been_hit = false;
 
-		for (auto j = i + 1; j != entities.end(); ++j)
+		for (auto j = i; j != entities.end(); ++j)
 		{
-			Entity b = *j;
-			const auto transform_b = j->GetComponent<TransformComponent>();
-			auto& collider_b = j->GetComponent<BoxColliderComponent>();
+			if (i == j)
+			{
+				continue;
+			}
+		
+			entt::entity b = *j;
+			auto [transform_b, collider_b] = registry.get<TransformComponent, BoxColliderComponent>(b);
 
 			// TODO: Issue with scale needs fixing
 			bool collisionHappened = CheckAABBCollision(
@@ -40,7 +41,7 @@ void CollisionSystem::Update(std::unique_ptr<EventBus>& event_bus)
 			);
 			if (collisionHappened)
 			{
-				Logger::Log("Hit happened between entities {} and {}", a.GetId(), b.GetId());
+				Logger::Log("Hit happened between entities {} and {}", a, b);
 
 				event_bus->EmitEvent<CollisionEvent>(a, b);
 			}

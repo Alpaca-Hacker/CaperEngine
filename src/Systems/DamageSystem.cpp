@@ -1,76 +1,79 @@
 #include "Systems/DamageSystem.h"
 
-#include "Components/BoxColliderComponent.h"
 #include "Components/HealthComponent.h"
 #include "Components/ProjectileComponent.h"
+#include "Components/Tags.h"
 #include "Events/CollisionEvent.h"
 #include "Events/EventBus.h"
 
-DamageSystem::DamageSystem()
-{
-	RequireComponent<BoxColliderComponent>();
-}
 
 void DamageSystem::OnCollision(CollisionEvent& event)
 {
 	//Logger::Log("Boom! Entities {} and {} crashed!", event.a.GetId(), event.b.GetId());
-	Entity a = event.a;
-	Entity b = event.b;
+	entt::entity a = event.a;
+	entt::entity b = event.b;
 
-	if (a.BelongsToGroup("projectile")) {
-		if (b.HasTag("player")) {
+	if (registry_.any_of<Projectile>(a)) {
+		if (registry_.any_of<Player>(b)) {
 			//hit player
 			OnProjectileHitsPlayer(a, b);
 		}
-		if (b.BelongsToGroup("enemy")) {
-			//hit enemy
-			OnProjectileHitsEnemy(a, b);
+		else {
+			if (registry_.any_of<Enemy>(b)) {
+				//hit enemy
+				OnProjectileHitsEnemy(a, b);
+
+			}
 		}
 	}
+	else {
 
-	if (b.BelongsToGroup("projectile")) {
-		if (a.HasTag("player")) {
-			//hit player
-			OnProjectileHitsPlayer(b, a);
-		}
-		if (a.BelongsToGroup("enemy")) {
-			//hit enemy
-			OnProjectileHitsEnemy(b, a);
+		if (registry_.any_of<Projectile>(b)) {
+			if (registry_.any_of<Player>(a)) {
+				//hit player
+				OnProjectileHitsPlayer(b, a);
+			}
+			else {
+				if (registry_.any_of<Enemy>(a)) {
+					//hit enemy
+					OnProjectileHitsEnemy(b, a);
+				}
+			}
 		}
 	}
 }
 
-void DamageSystem::OnProjectileHitsPlayer(Entity& projectile, Entity& player)
+void DamageSystem::OnProjectileHitsPlayer(entt::entity& projectile, entt::entity& player)
 {
-	auto projectile_component = projectile.GetComponent<ProjectileComponent>();
+	auto projectile_component = registry_.get<ProjectileComponent>(projectile);
 
 	if (!projectile_component.is_friendly)
 	{
-		auto& health = player.GetComponent<HealthComponent>();
+		auto& health = registry_.get<HealthComponent>(player);
 		health.health -= projectile_component.damage;
 
 		if (health.health <=0)
 		{
-			player.Kill();
+			registry_.emplace_or_replace<Destroy>(player);
 		}
-		projectile.Kill();
+		registry_.emplace_or_replace<Destroy>(projectile);
 	}
 }
 
-void DamageSystem::OnProjectileHitsEnemy(Entity& projectile, Entity& enemy)
+void DamageSystem::OnProjectileHitsEnemy(entt::entity& projectile, entt::entity& enemy)
 {
-	auto projectile_component = projectile.GetComponent<ProjectileComponent>();
+	auto projectile_component = registry_.get<ProjectileComponent>(projectile);
 
 	if (projectile_component.is_friendly)
 	{
-		auto& health = enemy.GetComponent<HealthComponent>();
+		auto& health = registry_.get<HealthComponent>(enemy);
 		health.health -= projectile_component.damage;
 
 		if (health.health <= 0)
 		{
-			enemy.Kill();
+			registry_.emplace_or_replace<Destroy>(enemy);
 		}
-		projectile.Kill();
+		registry_.emplace_or_replace<Destroy>(projectile);
 	}
 }
 

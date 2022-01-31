@@ -1,11 +1,9 @@
 #pragma once
-#include "ECS/ECS.h"
+#include <entt/entt.hpp>
 
-class AnimationSystem : public System
+class AnimationSystem 
 {
 public:
-	AnimationSystem();
+	void Update(entt::registry& registry);
 
-	void Update();
-private:
 };

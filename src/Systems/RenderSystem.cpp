@@ -1,8 +1,11 @@
 #include "Systems/RenderSystem.h"
 
 #include <SDL.h>
+#include <entt/entt.hpp>
 
 #include "AssetStore/AssetStore.h"
+#include "Components/SpriteComponent.h"
+#include "Components/TransformComponent.h"
 
 struct EntityToRender
 {
@@ -10,15 +13,16 @@ struct EntityToRender
 	SpriteComponent sprite_component;
 };
 
-void RenderSystem::Update(SDL_Renderer* renderer, const std::unique_ptr<AssetStore>& asset_store, SDL_Rect camera)
+void RenderSystem::Update(const entt::registry& registry, SDL_Renderer* renderer, const std::unique_ptr<AssetStore>& asset_store, SDL_Rect camera)
 {
 	std::vector<EntityToRender> entities_to_render;
 
-	for (auto entity : GetSystemEntities())
+	for (auto entity : registry.view<TransformComponent, SpriteComponent>())
 	{
 		EntityToRender entity_to_render;
-		entity_to_render.transform_component = entity.GetComponent<TransformComponent>();
-		entity_to_render.sprite_component = entity.GetComponent<SpriteComponent>();
+		auto [transform, sprite] = registry.get<TransformComponent, SpriteComponent>(entity);
+		entity_to_render.transform_component = transform;
+		entity_to_render.sprite_component = sprite;
 		entities_to_render.emplace_back(entity_to_render);
 	}
 
