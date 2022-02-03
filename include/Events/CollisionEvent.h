@@ -1,13 +1,12 @@
 ﻿#pragma once
 #include <entt/entt.hpp>
 
-#include "Events/Event.h"
-
-class CollisionEvent : public Event
+struct CollisionEvent 
 {
 public:
 	entt::entity a;
 	entt::entity b;
+	entt::registry* registry;
 
-	CollisionEvent(entt::entity a, entt::entity b) : a(a), b(b) {}
+	CollisionEvent(entt::entity a, entt::entity b, entt::registry* registry = nullptr) : a(a), b(b), registry(registry) {}
 };

@@ -3,7 +3,6 @@
 #include <fstream>
 #include <iostream>
 #include <SDL.h>
-#include <SDL_image.h>
 #include <glm/glm.hpp>
 
 #include "AssetStore/AssetStore.h"
@@ -42,9 +41,8 @@ int Engine::map_height_;
 
 Engine::Engine() : debug_mode_(false)
 {
-	//registry_ = std::make_unique <Registry>();
 	asset_store_ = std::make_unique<AssetStore>();
-	event_bus_ = std::make_unique<EventBus>();
+	dispatcher_ = std::make_unique<entt::dispatcher>();
 }
 
 Engine::~Engine()
@@ -179,6 +177,14 @@ void Engine::LoadLevel(int level)
 void Engine::Setup()
 {
 	LoadLevel(1);
+
+	dispatcher_->sink<KeypressEvent>().connect<&Engine::OnKeypress>(this);
+
+	KeyboardControllerSystem keyboard_controller;
+	keyboard_controller.SubscribeToEvents(dispatcher_);
+
+	DamageSystem damage_system;
+	damage_system.SubscribeToEvents(dispatcher_);
 }
 
 
@@ -205,10 +211,10 @@ void Engine::ProcessInput()
 			is_running_ = false;
 			break;
 		case SDL_KEYDOWN:
-			event_bus_->EmitEvent<KeypressEvent>(sdl_event.key.keysym.sym, registry_);
+			dispatcher_->enqueue<KeypressEvent>(sdl_event.key.keysym.sym, &registry_);
 			break;
 		case SDL_KEYUP:
-			event_bus_->EmitEvent<KeyReleaseEvent>(sdl_event.key.keysym.sym, registry_);
+			dispatcher_->enqueue<KeyReleaseEvent>(sdl_event.key.keysym.sym, &registry_);
 			break;
 		default:
 			break;
@@ -218,12 +224,12 @@ void Engine::ProcessInput()
 
 void Engine::OnKeypress(KeypressEvent& event)
 {
-
-	if (event.symbol_ == SDLK_ESCAPE)
+	Logger::Log("Key {} ({}) pressed!", event.symbol, SDL_GetKeyName(event.symbol));
+	if (event.symbol == SDLK_ESCAPE)
 	{
 		is_running_ = false;
 	}
-	if (event.symbol_ == SDLK_F7)
+	if (event.symbol == SDLK_F7)
 	{
 		debug_mode_ = !debug_mode_;
 	}
@@ -241,16 +247,6 @@ void Engine::Update()
 
 	millisecs_prev_frame_ = SDL_GetTicks64();
 
-	event_bus_->Reset();
-
-	//Subscribe to Events for all systems
-	event_bus_->SubscribeToEvent<KeypressEvent>(this, &Engine::OnKeypress);
-	KeyboardControllerSystem keyboard_controller;
-
-	keyboard_controller.SubscribeToEvents(event_bus_);
-	DamageSystem damage_system(registry_);
-	damage_system.SubscribeToEvents(event_bus_);
-	
 	//Update Systems
 	MovementSystem movement_system;
 	movement_system.Update(registry_, delta_time);
@@ -258,7 +254,7 @@ void Engine::Update()
 	anim_sys.Update(registry_);
 
 	CollisionSystem collision_system;
-	collision_system.Update(registry_, event_bus_);
+	collision_system.Update(registry_, dispatcher_);
 	CameraMovementSystem cms;
 	cms.Update(registry_, camera_);
 	ProjectileEmitterSystem pes;
@@ -289,6 +285,7 @@ void Engine::Render()
 
 void Engine::OnEndOfFrame()
 {
+	dispatcher_->update();
 	JanitorSystem janitor;
 	janitor.Update(registry_);
 }

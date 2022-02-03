@@ -152,8 +152,6 @@
     <ClInclude Include="include\Components\ProjectileEmitterComponent.h" />
     <ClInclude Include="include\Components\Tags.h" />
     <ClInclude Include="include\Events\CollisionEvent.h" />
-    <ClInclude Include="include\Events\Event.h" />
-    <ClInclude Include="include\Events\EventBus.h" />
     <ClInclude Include="include\AssetStore\AssetStore.h" />
     <ClInclude Include="include\Components\AnimationComponent.h" />
     <ClInclude Include="include\Components\BoxColliderComponent.h" />
@@ -761,7 +759,6 @@
     <None Include="libs\glm\gtx\wrap.inl" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Events\EventBus.cpp" />
     <ClCompile Include="src\Systems\CameraMovementSystem.cpp" />
     <ClCompile Include="src\Systems\CollisionSystem.cpp" />
     <ClCompile Include="src\Systems\AnimationSystem.cpp" />

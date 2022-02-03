@@ -5,11 +5,10 @@
 #include "Components/BoxColliderComponent.h"
 #include "Components/TransformComponent.h"
 #include "Events/CollisionEvent.h"
-#include "Events/EventBus.h"
 #include "Log/Logger.h"
 
 
-void CollisionSystem::Update(entt::registry& registry, std::unique_ptr<EventBus>& event_bus)
+void CollisionSystem::Update(entt::registry& registry, std::unique_ptr<entt::dispatcher>& dispatcher)
 {
 	auto entities = registry.view<TransformComponent, BoxColliderComponent>();
 	for (auto i = entities.begin(); i != entities.end(); ++i)
@@ -41,9 +40,9 @@ void CollisionSystem::Update(entt::registry& registry, std::unique_ptr<EventBus>
 			);
 			if (collisionHappened)
 			{
-				Logger::Log("Hit happened between entities {} and {}", a, b);
+				//Logger::Log("Hit happened between entities {} and {}", a, b);
 
-				event_bus->EmitEvent<CollisionEvent>(a, b);
+ 				dispatcher->enqueue<CollisionEvent>(a, b, &registry);
 			}
 		}
 		collider_a.is_hit = has_been_hit;

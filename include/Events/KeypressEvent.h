@@ -1,27 +1,24 @@
 ﻿#pragma once
 #include <SDL.h>
+
 #include <entt/entt.hpp>
-#include "Event.h"
 
-class KeypressEvent : public Event
+
+struct KeypressEvent 
 {
-public:
-	SDL_Keycode symbol_;
-	entt::registry& registry_;
+	SDL_Keycode symbol;
+	entt::registry *registry;
 
-	KeypressEvent(int symbol, entt::registry& registry) : symbol_(symbol), registry_(registry)
-	{
-		
-	}
+	KeypressEvent(int symbol = 0, entt::registry *registry = nullptr) : symbol(symbol), registry(registry)
+	{}
 };
 
 
-class KeyReleaseEvent : public Event
+struct KeyReleaseEvent 
 {
-public:
-	SDL_Keycode symbol_;
-	entt::registry& registry_;
+	SDL_Keycode symbol;
+	entt::registry* registry;
 
-	KeyReleaseEvent(int symbol, entt::registry& registry) : symbol_(symbol), registry_(registry)
+	KeyReleaseEvent(int symbol = 0,  entt::registry * registry = nullptr) : symbol(symbol), registry(registry)
 	{}
 };

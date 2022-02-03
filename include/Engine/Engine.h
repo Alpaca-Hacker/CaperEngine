@@ -3,7 +3,6 @@
 #include <entt/entt.hpp>
 
 #include "AssetStore/AssetStore.h"
-#include "Events/EventBus.h"
 #include "Events/KeypressEvent.h"
 
 const int FPS = 30;
@@ -42,5 +41,5 @@ private:
 
 	entt::registry registry_;
 	std::unique_ptr<AssetStore> asset_store_;
-	std::unique_ptr<EventBus> event_bus_;
+	std::unique_ptr<entt::dispatcher> dispatcher_;
 };
