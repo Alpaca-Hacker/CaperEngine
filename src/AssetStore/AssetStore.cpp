@@ -19,6 +19,12 @@ void AssetStore::ClearAssets()
 		SDL_DestroyTexture(texture.second);
 	}
 	textures_.clear();
+
+	for(auto font: fonts_)
+	{
+		TTF_CloseFont(font.second);
+	}
+	fonts_.clear();
 }
 
 void AssetStore::AddTexture(SDL_Renderer* renderer, const std::string& asset_id, const std::string& file_path)
@@ -37,4 +43,14 @@ void AssetStore::AddTexture(SDL_Renderer* renderer, const std::string& asset_id,
 SDL_Texture* AssetStore::GetTexture(const std::string& asset_id)
 {
 	return textures_[asset_id];
+}
+
+void AssetStore::AddFont(const std::string& asset_id, const std::string& file_path, int font_size)
+{
+	fonts_.emplace(asset_id, TTF_OpenFont(file_path.c_str(), font_size));
+}
+
+TTF_Font* AssetStore::GetFont(const std::string& asset_id)
+{
+	return fonts_[asset_id];
 }

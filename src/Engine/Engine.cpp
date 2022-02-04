@@ -16,6 +16,7 @@
 #include "Components/RigidBodyComponent.h"
 #include "Components/SpriteComponent.h"
 #include "Components/Tags.h"
+#include "Components/TextComponent.h"
 #include "Components/TransformComponent.h"
 #include "Events/KeypressEvent.h"
 #include "Log/Logger.h"
@@ -25,12 +26,14 @@
 #include "Systems/DamageSystem.h"
 #include "Systems/DebugHitBoxSystem.h"
 #include "Systems/DebugSystem.h"
+#include "Systems/HealthDisplaySystem.h"
 #include "Systems/JanitorSystem.h"
 #include "Systems/KeyboardControllerSystem.h"
 #include "Systems/MovementSystem.h"
 #include "Systems/ProjectileEmitterSystem.h"
 #include "Systems/ProjectileLifecycleSystem.h"
 #include "Systems/RenderSystem.h"
+#include "Systems/RenderTextSystem.h"
 
 using namespace entt::literals;
 
@@ -54,6 +57,12 @@ void Engine::Initialise()
 	Logger::Initialise();
 
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
+	{
+		std::cerr << "Error initializing SDL. Error:" << SDL_GetError() << std::endl;
+		return;
+	}
+
+	if (TTF_Init() != 0)
 	{
 		std::cerr << "Error initializing SDL. Error:" << SDL_GetError() << std::endl;
 		return;
@@ -102,6 +111,7 @@ void Engine::LoadLevel(int level)
 	asset_store_->AddTexture(renderer_, "chopper-image", "./assets/images/chopper-spritesheet.png");
 	asset_store_->AddTexture(renderer_, "radar-image", "./assets/images/radar.png");
 	asset_store_->AddTexture(renderer_, "bullet-image", "./assets/images/bullet.png");
+	asset_store_->AddFont("charriot-font", "./assets/fonts/charriot.ttf", 14);
 
 	// Load the tilemap
 	int tile_size = 32;
@@ -172,6 +182,10 @@ void Engine::LoadLevel(int level)
 	registry_.emplace<ProjectileEmitterComponent>(truck,glm::vec2(0.0, 100.0), 2000, 6000, 10, false);
 	registry_.emplace<HealthComponent>(truck, 100);
 	registry_.emplace<DebugComponent>(truck);
+
+	auto label =registry_.create();
+	SDL_Colour cornflower_blue = { 0x64, 0x95, 0xED, 0xFF };
+	registry_.emplace<TextComponent>(label, glm::vec2(100, 100), "Hullo!", "charriot-font", cornflower_blue, true);
 }
 
 void Engine::Setup()
@@ -224,7 +238,7 @@ void Engine::ProcessInput()
 
 void Engine::OnKeypress(KeypressEvent& event)
 {
-	Logger::Log("Key {} ({}) pressed!", event.symbol, SDL_GetKeyName(event.symbol));
+	//Logger::Log("Key {} ({}) pressed!", event.symbol, SDL_GetKeyName(event.symbol));
 	if (event.symbol == SDLK_ESCAPE)
 	{
 		is_running_ = false;
@@ -275,6 +289,10 @@ void Engine::Render()
 	SDL_RenderClear(renderer_);
 	RenderSystem render_system;
 	render_system.Update(registry_, renderer_, asset_store_, camera_);
+	RenderTextSystem render_text_system;
+	render_text_system.Update(registry_, renderer_, asset_store_, camera_);
+	HealthDisplaySystem health_display;
+	health_display.Update(registry_, renderer_, asset_store_, camera_);
 
 	if (debug_mode_) {
 		DebugHitBoxSystem dhbs;

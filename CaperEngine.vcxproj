@@ -151,6 +151,7 @@
     <ClInclude Include="include\Components\ProjectileComponent.h" />
     <ClInclude Include="include\Components\ProjectileEmitterComponent.h" />
     <ClInclude Include="include\Components\Tags.h" />
+    <ClInclude Include="include\Components\TextComponent.h" />
     <ClInclude Include="include\Events\CollisionEvent.h" />
     <ClInclude Include="include\AssetStore\AssetStore.h" />
     <ClInclude Include="include\Components\AnimationComponent.h" />
@@ -165,12 +166,14 @@
     <ClInclude Include="include\Systems\DebugHitBoxSystem.h" />
     <ClInclude Include="include\Systems\CollisionSystem.h" />
     <ClInclude Include="include\Systems\DebugSystem.h" />
+    <ClInclude Include="include\Systems\HealthDisplaySystem.h" />
     <ClInclude Include="include\Systems\JanitorSystem.h" />
     <ClInclude Include="include\Systems\KeyboardControllerSystem.h" />
     <ClInclude Include="include\Systems\MovementSystem.h" />
     <ClInclude Include="include\Systems\ProjectileEmitterSystem.h" />
     <ClInclude Include="include\Systems\ProjectileLifecycleSystem.h" />
     <ClInclude Include="include\Systems\RenderSystem.h" />
+    <ClInclude Include="include\Systems\RenderTextSystem.h" />
     <ClInclude Include="libs\glm\common.hpp" />
     <ClInclude Include="libs\glm\detail\compute_common.hpp" />
     <ClInclude Include="libs\glm\detail\compute_vector_relational.hpp" />
@@ -773,11 +776,13 @@
     <ClCompile Include="src\Log\Logger.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Systems\DamageSystem.cpp" />
+    <ClCompile Include="src\Systems\HealthDisplaySystem.cpp" />
     <ClCompile Include="src\Systems\JanitorSystem.cpp" />
     <ClCompile Include="src\Systems\KeyboardControllerSystem.cpp" />
     <ClCompile Include="src\Systems\ProjectileEmitterSystem.cpp" />
     <ClCompile Include="src\Systems\ProjectileLifecycleSystem.cpp" />
     <ClCompile Include="src\Systems\RenderSystem.cpp" />
+    <ClCompile Include="src\Systems\RenderTextSystem.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -16,7 +16,7 @@ void KeyboardControllerSystem::SubscribeToEvents(std::unique_ptr<entt::dispatche
 
 void KeyboardControllerSystem::OnKeyPressed(KeypressEvent& event)
 {
-	Logger::Log("Key {} ({}) pressed!", event.symbol, SDL_GetKeyName(event.symbol));
+	//Logger::Log("Key {} ({}) pressed!", event.symbol, SDL_GetKeyName(event.symbol));
 
 	for (auto entity : event.registry->view<SpriteComponent, RigidBodyComponent, KeyboardControlledComponent>())
 	{
