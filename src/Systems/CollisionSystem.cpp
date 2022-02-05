@@ -29,12 +29,12 @@ void CollisionSystem::Update(entt::registry& registry, std::unique_ptr<entt::dis
 
 			// TODO: Issue with scale needs fixing
 			bool collisionHappened = CheckAABBCollision(
-				(transform_a.position.x * transform_a.scale.x) + (collider_a.offset.x * transform_a.scale.x),
-				transform_a.position.y * transform_a.scale.y + (collider_a.offset.y * transform_a.scale.y),
+				transform_a.position.x + (collider_a.offset.x * transform_a.scale.x),
+				transform_a.position.y + (collider_a.offset.y * transform_a.scale.y),
 				collider_a.width,
 				collider_a.height,
-				transform_b.position.x * transform_b.scale.x + (collider_b.offset.x * transform_b.scale.x),
-				transform_b.position.y * transform_b.scale.y + (collider_b.offset.y * transform_b.scale.y),
+				transform_b.position.x + (collider_b.offset.x * transform_b.scale.x),
+				transform_b.position.y + (collider_b.offset.y * transform_b.scale.y),
 				collider_b.width,
 				collider_b.height
 			);

@@ -24,7 +24,7 @@ public:
 	void Setup();
 	void OnEndOfFrame();
 	void Run();
-	void ProcessInput();
+	void ProcessEvents();
 	void OnKeypress(KeypressEvent& event);
 	void Update();
 	void Render();

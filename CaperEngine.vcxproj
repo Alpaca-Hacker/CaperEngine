@@ -78,8 +78,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>D:\Code\CaperEngine\include;D:\Code\CaperEngine\libs;D:\Code\Lib\SDL2\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\Code\CaperEngine\libs\lua;D:\Code\Lib\SDL2\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\Code\CaperEngine\include;D:\Code\CaperEngine\libs\imgui;D:\Code\CaperEngine\libs;D:\Code\Lib\SDL2\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\Code\CaperEngine\libs\imgui;D:\Code\CaperEngine\libs\lua;D:\Code\Lib\SDL2\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -172,6 +172,7 @@
     <ClInclude Include="include\Systems\MovementSystem.h" />
     <ClInclude Include="include\Systems\ProjectileEmitterSystem.h" />
     <ClInclude Include="include\Systems\ProjectileLifecycleSystem.h" />
+    <ClInclude Include="include\Systems\RenderImGuiSystem.h" />
     <ClInclude Include="include\Systems\RenderSystem.h" />
     <ClInclude Include="include\Systems\RenderTextSystem.h" />
     <ClInclude Include="libs\glm\common.hpp" />
@@ -417,8 +418,9 @@
     <ClInclude Include="libs\glm\vector_relational.hpp" />
     <ClInclude Include="libs\imgui\imconfig.h" />
     <ClInclude Include="libs\imgui\imgui.h" />
+    <ClInclude Include="libs\imgui\imgui_impl_sdl.h" />
+    <ClInclude Include="libs\imgui\imgui_impl_sdlrenderer.h" />
     <ClInclude Include="libs\imgui\imgui_internal.h" />
-    <ClInclude Include="libs\imgui\imgui_sdl.h" />
     <ClInclude Include="libs\imgui\imstb_rectpack.h" />
     <ClInclude Include="libs\imgui\imstb_textedit.h" />
     <ClInclude Include="libs\imgui\imstb_truetype.h" />
@@ -762,17 +764,19 @@
     <None Include="libs\glm\gtx\wrap.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="libs\imgui\imgui.cpp" />
+    <ClCompile Include="libs\imgui\imgui_demo.cpp" />
+    <ClCompile Include="libs\imgui\imgui_draw.cpp" />
+    <ClCompile Include="libs\imgui\imgui_impl_sdl.cpp" />
+    <ClCompile Include="libs\imgui\imgui_impl_sdlrenderer.cpp" />
+    <ClCompile Include="libs\imgui\imgui_tables.cpp" />
+    <ClCompile Include="libs\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\Systems\CameraMovementSystem.cpp" />
     <ClCompile Include="src\Systems\CollisionSystem.cpp" />
     <ClCompile Include="src\Systems\AnimationSystem.cpp" />
     <ClCompile Include="src\AssetStore\AssetStore.cpp" />
     <ClCompile Include="src\Engine\Engine.cpp" />
     <ClCompile Include="libs\glm\detail\glm.cpp" />
-    <ClCompile Include="libs\imgui\imgui.cpp" />
-    <ClCompile Include="libs\imgui\imgui_demo.cpp" />
-    <ClCompile Include="libs\imgui\imgui_draw.cpp" />
-    <ClCompile Include="libs\imgui\imgui_sdl.cpp" />
-    <ClCompile Include="libs\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\Log\Logger.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Systems\DamageSystem.cpp" />
@@ -781,6 +785,7 @@
     <ClCompile Include="src\Systems\KeyboardControllerSystem.cpp" />
     <ClCompile Include="src\Systems\ProjectileEmitterSystem.cpp" />
     <ClCompile Include="src\Systems\ProjectileLifecycleSystem.cpp" />
+    <ClCompile Include="src\Systems\RenderImGuiSystem.cpp" />
     <ClCompile Include="src\Systems\RenderSystem.cpp" />
     <ClCompile Include="src\Systems\RenderTextSystem.cpp" />
   </ItemGroup>

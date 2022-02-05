@@ -1,9 +1,14 @@
 #include "Systems/KeyboardControllerSystem.h"
 
+#include "Components/BoxColliderComponent.h"
 #include "Components/KeyboardControlledComponent.h"
+#include "Components/ProjectileComponent.h"
 #include "Components/ProjectileEmitterComponent.h"
 #include "Components/RigidBodyComponent.h"
 #include "Components/SpriteComponent.h"
+#include "Components/Tags.h"
+#include "Components/TransformComponent.h"
+#include "glm/detail/func_trigonometric.inl"
 #include "Log/Logger.h"
 
 // Not convinced that this is the best way, should try an input class that picks up events and this then processes them..
@@ -18,58 +23,64 @@ void KeyboardControllerSystem::OnKeyPressed(KeypressEvent& event)
 {
 	//Logger::Log("Key {} ({}) pressed!", event.symbol, SDL_GetKeyName(event.symbol));
 
-	for (auto entity : event.registry->view<SpriteComponent, RigidBodyComponent, KeyboardControlledComponent>())
+	for (auto entity : event.registry->view<Player>()) //player is the only one keyboard controlled
 	{
+		static int direction = 0;
+		static glm::vec2 velocity = { 0,-1 };
+		static int last_fire_time = SDL_GetTicks64();
 
-		auto [sprite, rigid_body, keyboard] = event.registry->get<SpriteComponent, RigidBodyComponent, KeyboardControlledComponent>(entity);
+
+		auto [sprite, rigid_body, keyboard, transform, emitter] =
+			event.registry->get<SpriteComponent, RigidBodyComponent, KeyboardControlledComponent, TransformComponent, ProjectileEmitterComponent>(entity);
 
 		switch (event.symbol)
 		{
 		case SDLK_UP:
 			rigid_body.velocity = keyboard.up_velocity;
-			sprite.src_rect.y = sprite.height * 0;
-			if (event.registry->any_of<ProjectileEmitterComponent>(entity))
-			{
-				auto& emitter = event.registry->get<ProjectileEmitterComponent>(entity);
-				emitter.projectile_velocity = glm::vec2(0, -300);
-			}
+			direction = 0;
+			velocity = { 0,1 };
 			break;
 		case SDLK_RIGHT:
 			rigid_body.velocity = keyboard.right_velocity;
-			sprite.src_rect.y = sprite.height * 1;
-			if (event.registry->any_of<ProjectileEmitterComponent>(entity))
-			{
-				auto& emitter = event.registry->get<ProjectileEmitterComponent>(entity);
-				emitter.projectile_velocity = glm::vec2(300, 0);
-			}
+			direction = 1;
+			velocity = { -1,0 };
 			break;
 		case SDLK_DOWN:
 			rigid_body.velocity = keyboard.down_velocity;
-			sprite.src_rect.y = sprite.height * 2;
-			if (event.registry->any_of<ProjectileEmitterComponent>(entity))
-			{
-				auto& emitter = event.registry->get<ProjectileEmitterComponent>(entity);
-				emitter.projectile_velocity = glm::vec2(0, 300);
-			}
+			direction = 2;
+			velocity = { 0,-1 };
 			break;
 		case SDLK_LEFT:
 			rigid_body.velocity = keyboard.left_velocity;
-			sprite.src_rect.y = sprite.height * 3;
-			if (event.registry->any_of<ProjectileEmitterComponent>(entity))
-			{
-				auto& emitter = event.registry->get<ProjectileEmitterComponent>(entity);
-				emitter.projectile_velocity = glm::vec2(-300, 0);
-			}
+			direction = 3;
+			velocity = { 1,0 };
 			break;
 		case SDLK_SPACE:
-			if (event.registry->any_of<ProjectileEmitterComponent>(entity))
+		{
+			if (SDL_GetTicks64() - last_fire_time > emitter.repeat_frequency)
 			{
-				auto& emitter = event.registry->get<ProjectileEmitterComponent>(entity);
-				emitter.last_emission_time = -1000000;
+				glm::vec2 position = transform.position;
+				position.x += (transform.scale.x * sprite.width / 2);
+				position.y += (transform.scale.y * sprite.height / 2);
+
+				auto vel = glm::vec2(velocity.x * emitter.projectile_speed, velocity.y * emitter.projectile_speed);
+				auto projectile = event.registry->create();
+				event.registry->emplace<TransformComponent>(projectile, position);
+				event.registry->emplace<RigidBodyComponent>(projectile, vel);
+				event.registry->emplace<SpriteComponent>(projectile, "bullet-image", 4, 4, 4);
+				event.registry->emplace<BoxColliderComponent>(projectile, 4, 4, glm::vec2(0, 0));
+				event.registry->emplace<ProjectileComponent>(projectile, emitter.is_friendly, emitter.hit_percent_damage, emitter.projectile_duration);
+				event.registry->emplace<Projectile>(projectile);
+
+				last_fire_time = SDL_GetTicks64();
 			}
+		}
+			break;
 		default:
 			break;
 		}
+
+		sprite.src_rect.y = sprite.height * direction;
 	}
 }
 
@@ -100,4 +111,3 @@ void KeyboardControllerSystem::OnKeyReleased(KeyReleaseEvent& event)
 		}
 	}
 }
-

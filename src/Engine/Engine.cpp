@@ -4,6 +4,9 @@
 #include <iostream>
 #include <SDL.h>
 #include <glm/glm.hpp>
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_sdl.h"
+#include "imgui/imgui_impl_sdlrenderer.h"
 
 #include "AssetStore/AssetStore.h"
 #include "Components/AnimationComponent.h"
@@ -32,6 +35,7 @@
 #include "Systems/MovementSystem.h"
 #include "Systems/ProjectileEmitterSystem.h"
 #include "Systems/ProjectileLifecycleSystem.h"
+#include "Systems/RenderImGuiSystem.h"
 #include "Systems/RenderSystem.h"
 #include "Systems/RenderTextSystem.h"
 
@@ -48,9 +52,7 @@ Engine::Engine() : debug_mode_(false)
 	dispatcher_ = std::make_unique<entt::dispatcher>();
 }
 
-Engine::~Engine()
-{
-}
+Engine::~Engine(){}
 
 void Engine::Initialise()
 {
@@ -94,6 +96,21 @@ void Engine::Initialise()
 	}
 	//SDL_SetWindowFullscreen(window_, SDL_WINDOW_FULLSCREEN);
 
+	//Imgui
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+
+	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_ViewportsEnable | ImGuiConfigFlags_DockingEnable;
+	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+
+	// Setup Dear ImGui style
+	ImGui::StyleColorsDark();
+
+	ImGui_ImplSDL2_InitForSDLRenderer(window_);
+	ImGui_ImplSDLRenderer_Init(renderer_);
+
 	camera_.x = 0;
 	camera_.y = 0;
 	camera_.w = window_width_;
@@ -105,22 +122,27 @@ void Engine::Initialise()
 void Engine::LoadLevel(int level)
 {
 	// TODO: Move to a resource cache
-	asset_store_->AddTexture(renderer_, "tank-image", "./assets/images/kenney/Tank-right.png");
-	asset_store_->AddTexture(renderer_, "truck-image", "./assets/images/kenney/Truck_Right.png");
-	asset_store_->AddTexture(renderer_, "tilemap-image", "./assets/tilemaps/jungle.png");
+	asset_store_->AddTexture(renderer_, "tank-blue", "./assets/images/kenney/tank_blue.png");
+	asset_store_->AddTexture(renderer_, "tank-dark", "./assets/images/kenney/tank_dark.png");
+	asset_store_->AddTexture(renderer_, "tank-red", "./assets/images/kenney/tank_red.png");
+	asset_store_->AddTexture(renderer_, "tank-sand", "./assets/images/kenney/tank_sand.png");
+	asset_store_->AddTexture(renderer_, "tank-green", "./assets/images/kenney/tank_green.png");
+
+	asset_store_->AddTexture(renderer_, "tilemap-image", "./assets/tilemaps/tanks.png");
 	asset_store_->AddTexture(renderer_, "chopper-image", "./assets/images/chopper-spritesheet.png");
 	asset_store_->AddTexture(renderer_, "radar-image", "./assets/images/radar.png");
 	asset_store_->AddTexture(renderer_, "bullet-image", "./assets/images/bullet.png");
 	asset_store_->AddFont("charriot-font", "./assets/fonts/charriot.ttf", 14);
+	asset_store_->AddFont("covertops", "./assets/fonts/covertops.ttf", 25);
 
 	// Load the tilemap
-	int tile_size = 32;
-	double tile_scale = 2.0;
+	int tile_size = 64;
+	double tile_scale = 1.0;
 	int map_num_cols = 25;
 	int map_num_rows = 20;
 
 	std::fstream map_file;
-	map_file.open("./assets/tilemaps/jungle.map");
+	map_file.open("./assets/tilemaps/tanks.csv");
 
 	for (int y = 0; y < map_num_rows; y++) {
 		for (int x = 0; x < map_num_cols; x++) {
@@ -152,7 +174,7 @@ void Engine::LoadLevel(int level)
 	registry_.emplace<KeyboardControlledComponent>(chopper, glm::vec2(0, -100), glm::vec2(100, 0), glm::vec2(0, 100), glm::vec2(-100, 0));
 	registry_.emplace<CameraFollowComponent>(chopper);
 	registry_.emplace<HealthComponent>(chopper, 100);
-	registry_.emplace<ProjectileEmitterComponent>(chopper, glm::vec2(0.0, -300.0), 1000000, 10000, 10, true);
+	registry_.emplace<ProjectileEmitterComponent>(chopper, -300, 300, 10000, 10, true);
 
 
 	entt::entity radar = registry_.create();
@@ -162,30 +184,30 @@ void Engine::LoadLevel(int level)
 	registry_.emplace<SpriteComponent>(radar, "radar-image", 64, 64, 200, true);
 	registry_.emplace<AnimationComponent>(radar, 8, 7, true);
 
-	auto tank = registry_.create();
-	auto truck = registry_.create();
+	auto tank1 = registry_.create();
+	auto tank2 = registry_.create();
 
-	registry_.emplace<Enemy>(tank);
-	registry_.emplace<TransformComponent>(tank, glm::vec2(500.0, 482.0), glm::vec2(1.0, 1.0), 0.0);
-	registry_.emplace<RigidBodyComponent>(tank, glm::vec2(0.0, 0.0));
-	registry_.emplace<SpriteComponent>(tank, "tank-image", 64, 64, 2);
-	registry_.emplace<BoxColliderComponent>(tank, 64, 64);
-	registry_.emplace<ProjectileEmitterComponent>(tank, glm::vec2(100.0, 0.0), 5000, 10000, 25, false);
-	registry_.emplace<HealthComponent>(tank, 100);
+	registry_.emplace<Enemy>(tank1);
+	registry_.emplace<TransformComponent>(tank1, glm::vec2(500.0, 482.0), glm::vec2(1.0, 1.0), -90.0);
+	registry_.emplace<RigidBodyComponent>(tank1, glm::vec2(0.0, 0.0));
+	registry_.emplace<SpriteComponent>(tank1, "tank-blue", 42, 46, 2);
+	registry_.emplace<BoxColliderComponent>(tank1, 42, 46);
+	registry_.emplace<ProjectileEmitterComponent>(tank1, 100, 5000, 10000, 25, false);
+	registry_.emplace<HealthComponent>(tank1, 100);
 
 	//truck.Tag("truck");
-	registry_.emplace<Enemy>(truck);
-	registry_.emplace<TransformComponent>(truck, glm::vec2(100.0, 482.0), glm::vec2(1.0, 1.0), 0.0);
-	registry_.emplace<RigidBodyComponent>(truck, glm::vec2(0.0, 0.0));
-	registry_.emplace<SpriteComponent>(truck, "truck-image", 64, 64, 1);
-	registry_.emplace<BoxColliderComponent>(truck, 64, 64);
-	registry_.emplace<ProjectileEmitterComponent>(truck,glm::vec2(0.0, 100.0), 2000, 6000, 10, false);
-	registry_.emplace<HealthComponent>(truck, 100);
-	registry_.emplace<DebugComponent>(truck);
+	registry_.emplace<Enemy>(tank2);
+	registry_.emplace<TransformComponent>(tank2, glm::vec2(105.0, 543.0), glm::vec2(1.0, 1.0), 0.0);
+	registry_.emplace<RigidBodyComponent>(tank2, glm::vec2(0.0, 0.0));
+	registry_.emplace<SpriteComponent>(tank2, "tank-dark", 42, 46, 1);
+	registry_.emplace<BoxColliderComponent>(tank2, 42, 46);
+	registry_.emplace<ProjectileEmitterComponent>(tank2, 100 , 2000, 6000, 10, false);
+	registry_.emplace<HealthComponent>(tank2, 100);
+	//registry_.emplace<DebugComponent>(truck);
 
 	auto label =registry_.create();
 	SDL_Colour cornflower_blue = { 0x64, 0x95, 0xED, 0xFF };
-	registry_.emplace<TextComponent>(label, glm::vec2(100, 100), "Hullo!", "charriot-font", cornflower_blue, true);
+	registry_.emplace<TextComponent>(label, glm::vec2(window_width_ / 2 - 25, 25), "Chopper", "covertops", cornflower_blue, true);
 }
 
 void Engine::Setup()
@@ -207,18 +229,20 @@ void Engine::Run()
 	Setup();
 	while (is_running_)
 	{
-		ProcessInput();
+		ProcessEvents();
 		Update();
 		Render();
 		OnEndOfFrame();
 	}
 }
 
-void Engine::ProcessInput()
+void Engine::ProcessEvents()
 {
+
 	SDL_Event sdl_event;
 	while (SDL_PollEvent(&sdl_event))
 	{
+		ImGui_ImplSDL2_ProcessEvent(&sdl_event);
 		switch (sdl_event.type)
 		{
 		case SDL_QUIT:
@@ -297,6 +321,8 @@ void Engine::Render()
 	if (debug_mode_) {
 		DebugHitBoxSystem dhbs;
 		dhbs.Update(registry_, renderer_, camera_);
+		RenderImGuiSystem imgui;
+		imgui.Update(registry_, renderer_, asset_store_, camera_);
 	}
 	SDL_RenderPresent(renderer_);
 }
@@ -311,6 +337,9 @@ void Engine::OnEndOfFrame()
 void Engine::Shutdown()
 {
 	Logger::Log("Shutting down");
+	ImGui_ImplSDLRenderer_Shutdown();
+	ImGui_ImplSDL2_Shutdown();
+	ImGui::DestroyContext();
 
 	SDL_DestroyRenderer(renderer_);
 	SDL_DestroyWindow(window_);

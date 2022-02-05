@@ -31,5 +31,7 @@ void RenderTextSystem::Update(entt::registry& registry,  SDL_Renderer* renderer,
 		};
 
 		SDL_RenderCopy(renderer, texture, nullptr, &dstRect);
+
+		SDL_DestroyTexture(texture);
 	}
 }
