@@ -128,6 +128,11 @@ void Engine::LoadLevel(int level)
 	asset_store_->AddTexture(renderer_, "tank-sand", "./assets/images/kenney/tank_sand.png");
 	asset_store_->AddTexture(renderer_, "tank-green", "./assets/images/kenney/tank_green.png");
 
+	asset_store_->AddTexture(renderer_, "tree-green-large", "./assets/images/kenney/treeGreen_large.png");
+	asset_store_->AddTexture(renderer_, "tree-green-small", "./assets/images/kenney/treeGreen_small.png");
+	asset_store_->AddTexture(renderer_, "tree-brown-large", "./assets/images/kenney/treeBrown_large.png");
+	asset_store_->AddTexture(renderer_, "tree-brown-small", "./assets/images/kenney/treeBrown_small.png");
+
 	asset_store_->AddTexture(renderer_, "tilemap-image", "./assets/tilemaps/tanks.png");
 	asset_store_->AddTexture(renderer_, "chopper-image", "./assets/images/chopper-spritesheet.png");
 	asset_store_->AddTexture(renderer_, "radar-image", "./assets/images/radar.png");
@@ -188,8 +193,8 @@ void Engine::LoadLevel(int level)
 	auto tank2 = registry_.create();
 
 	registry_.emplace<Enemy>(tank1);
-	registry_.emplace<TransformComponent>(tank1, glm::vec2(500.0, 482.0), glm::vec2(1.0, 1.0), -90.0);
-	registry_.emplace<RigidBodyComponent>(tank1, glm::vec2(0.0, 0.0));
+	registry_.emplace<TransformComponent>(tank1, glm::vec2(500.0, 490.0), glm::vec2(1.0, 1.0), -90.0);
+	registry_.emplace<RigidBodyComponent>(tank1, glm::vec2(50.0, 0.0));
 	registry_.emplace<SpriteComponent>(tank1, "tank-blue", 42, 46, 2);
 	registry_.emplace<BoxColliderComponent>(tank1, 42, 46);
 	registry_.emplace<ProjectileEmitterComponent>(tank1, 100, 5000, 10000, 25, false);
@@ -204,6 +209,20 @@ void Engine::LoadLevel(int level)
 	registry_.emplace<ProjectileEmitterComponent>(tank2, 100 , 2000, 6000, 10, false);
 	registry_.emplace<HealthComponent>(tank2, 100);
 	//registry_.emplace<DebugComponent>(truck);
+
+	auto tree1 = registry_.create();
+	registry_.emplace<Obstacle>(tree1);
+	registry_.emplace<TransformComponent>(tree1, glm::vec2(1000.0, 482.0), glm::vec2(1.0, 1.0), 0.0);
+	registry_.emplace<RigidBodyComponent>(tree1, glm::vec2(0.0, 0.0));
+	registry_.emplace<SpriteComponent>(tree1, "tree-brown-large", 64, 64, 5);
+	registry_.emplace<BoxColliderComponent>(tree1, 64, 64);
+
+	auto tree2 = registry_.create();
+	registry_.emplace<Obstacle>(tree2);
+	registry_.emplace<TransformComponent>(tree2, glm::vec2(300.0, 482.0), glm::vec2(1.0, 1.0), 0.0);
+	registry_.emplace<RigidBodyComponent>(tree2, glm::vec2(0.0, 0.0));
+	registry_.emplace<SpriteComponent>(tree2, "tree-green-large", 64, 64, 5);
+	registry_.emplace<BoxColliderComponent>(tree2, 64, 64);
 
 	auto label =registry_.create();
 	SDL_Colour cornflower_blue = { 0x64, 0x95, 0xED, 0xFF };
@@ -221,6 +240,9 @@ void Engine::Setup()
 
 	DamageSystem damage_system;
 	damage_system.SubscribeToEvents(dispatcher_);
+
+	MovementSystem movement_system;
+	movement_system.SubscribeToEvents(dispatcher_);
 }
 
 

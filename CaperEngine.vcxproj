@@ -783,6 +783,7 @@
     <ClCompile Include="src\Systems\HealthDisplaySystem.cpp" />
     <ClCompile Include="src\Systems\JanitorSystem.cpp" />
     <ClCompile Include="src\Systems\KeyboardControllerSystem.cpp" />
+    <ClCompile Include="src\Systems\MovementSystem.cpp" />
     <ClCompile Include="src\Systems\ProjectileEmitterSystem.cpp" />
     <ClCompile Include="src\Systems\ProjectileLifecycleSystem.cpp" />
     <ClCompile Include="src\Systems\RenderImGuiSystem.cpp" />

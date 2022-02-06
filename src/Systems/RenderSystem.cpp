@@ -23,7 +23,17 @@ void RenderSystem::Update(const entt::registry& registry, SDL_Renderer* renderer
 		auto [transform, sprite] = registry.get<TransformComponent, SpriteComponent>(entity);
 		entity_to_render.transform_component = transform;
 		entity_to_render.sprite_component = sprite;
-		entities_to_render.emplace_back(entity_to_render);
+		// Cull sprites outside the view
+
+		bool is_entity_outside_camera_view = (
+			entity_to_render.transform_component.position.x + (entity_to_render.transform_component.scale.x * entity_to_render.sprite_component.width) < camera.x ||
+			entity_to_render.transform_component.position.x > camera.x + camera.w ||
+			entity_to_render.transform_component.position.y + (entity_to_render.transform_component.scale.y * entity_to_render.sprite_component.height) < camera.y ||
+			entity_to_render.transform_component.position.y > camera.y + camera.h
+			);
+		if (!is_entity_outside_camera_view || entity_to_render.sprite_component.is_fixed) {
+			entities_to_render.emplace_back(entity_to_render);
+		}
 	}
 
 	std::sort(entities_to_render.begin(),

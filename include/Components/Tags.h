@@ -7,3 +7,4 @@ struct Enemy {};
 struct Projectile {};
 struct Tile {};
 struct Destroy{};
+struct Obstacle{};

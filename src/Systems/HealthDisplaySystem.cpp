@@ -6,7 +6,7 @@
 #include "Components/SpriteComponent.h"
 #include "Components/TransformComponent.h"
 
-constexpr bool kShowPercentage = true;
+constexpr bool kShowPercentage = false;
 
 void HealthDisplaySystem::Update(entt::registry& registry, SDL_Renderer* renderer, std::unique_ptr<AssetStore>& asset_store, SDL_Rect& camera)
 {
@@ -45,13 +45,14 @@ void HealthDisplaySystem::Update(entt::registry& registry, SDL_Renderer* rendere
 		}
 		
 		SDL_RenderFillRect(renderer, &bar);
+		SDL_SetRenderDrawColor(renderer, 0x11, 0x11, 0x11, 0x00);
 		SDL_RenderDrawRect(renderer, &outline_bar);
 
 		// Draw health percentage - although I don't think we need it..
 
 		if constexpr (!kShowPercentage)
 		{
-			return;
+			continue;
 		}
 
 		std::string text = std::to_string(static_cast<int>(health_percent * 100)) + "%";
