@@ -82,7 +82,7 @@ Level = {
     -- Tile map (Maybe replaced by tiled)
     tilemap = {
         map_file = "./assets/tilemaps/tanks.csv",
-        asset_id = "tilemap-texture",
+        asset_id = "tilemap-image",
         num_rows = 20,
         num_cols = 25,
         tile_size = 64,
@@ -103,7 +103,7 @@ Level = {
                         x = 1.0,
                         y = 1.0
                     },
-                    rotation = {0.0}
+                    rotation = 0.0
                 },
                 rigidbody = {
                     velocity = {
@@ -152,7 +152,7 @@ Level = {
                         y = 100
                     },
                     left_velocity = {
-                        x = 100,
+                        x = -100,
                         y = 0
                     }
                 },
@@ -173,7 +173,7 @@ Level = {
                         x = 1.0,
                         y = 1.0
                     },
-                    rotation = {-90.0}
+                    rotation = -90.0
                 },
                 rigidbody = {
                     velocity = {
@@ -214,7 +214,7 @@ Level = {
                         x = 1.0,
                         y = 1.0
                     },
-                    rotation = {0.0}
+                    rotation = 0.0
                 },
                 rigidbody = {
                     velocity = {
@@ -254,7 +254,7 @@ Level = {
                         x = 1.0,
                         y = 1.0
                     },
-                    rotation = {0.0}
+                    rotation = 0.0
                 },
                 rigidbody = {
                     velocity = {
@@ -289,7 +289,7 @@ Level = {
                         x = 1.0,
                         y = 1.0
                     },
-                    rotation = {0.0}
+                    rotation = 0.0
                 },
                 rigidbody = {
                     velocity = {
@@ -322,7 +322,7 @@ Level = {
                         x = 1.0,
                         y = 1.0
                     },
-                    rotation = {0.0}
+                    rotation = 0.0
                 },
                 rigidbody = {
                     velocity = {

@@ -173,6 +173,14 @@ void Engine::OnKeypress(KeypressEvent& event)
 	{
 		debug_mode_ = !debug_mode_;
 	}
+	if(event.symbol == SDLK_F1)
+	{
+		Logger::Log("Resetting level");
+		registry_.clear();
+		asset_store_->ClearAssets();
+		LevelLoader loader;
+		loader.LoadLevel(lua, 1, registry_, renderer_, asset_store_);
+	}
 }
 
 void Engine::Update()

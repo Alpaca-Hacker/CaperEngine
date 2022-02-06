@@ -72,91 +72,189 @@ void LevelLoader::LoadLevel(sol::state& lua, int level_number, entt::registry& r
 		i++;
 	}
 
-	// Load the tilemap
-	int tile_size = 64;
-	double tile_scale = 1.0;
-	int map_num_cols = 25;
-	int map_num_rows = 20;
+	Engine::map_width_ = Engine::window_width_;
+	Engine::map_height_ = Engine::window_height_;
 
-	std::fstream map_file;
-	map_file.open("./assets/tilemaps/tanks.csv");
+	sol::optional<sol::table> has_map = level["tilemap"];
 
-	for (int y = 0; y < map_num_rows; y++) {
-		for (int x = 0; x < map_num_cols; x++) {
-			char ch;
-			map_file.get(ch);
-			int srcRectY = std::atoi(&ch) * tile_size;
-			map_file.get(ch);
-			int srcRectX = std::atoi(&ch) * tile_size;
-			map_file.ignore();
+	if (has_map != sol::nullopt)
+	{
+		sol::table tilemap = level["tilemap"];
+		// Load the tilemap
+		int tile_size = tilemap["tile_size"];
+		double tile_scale = tilemap["tile_scale"];
+		int map_num_cols = tilemap["num_cols"];
+		int map_num_rows = tilemap["num_rows"];
+		std::string map_asset_id = tilemap["asset_id"];
 
-			auto tile = registry.create();
-			registry.emplace<TransformComponent>(tile, glm::vec2(x * (tile_scale * tile_size), y * (tile_scale * tile_size)), glm::vec2(tile_scale, tile_scale), 0.0);
-			registry.emplace<SpriteComponent>(tile, "tilemap-image", tile_size, tile_size, 0, false, srcRectX, srcRectY);
-			registry.emplace<Tile>(tile);
+		std::fstream map_file;
+		std::string file = tilemap["map_file"];
+		map_file.open(file);
+
+		for (int y = 0; y < map_num_rows; y++) {
+			for (int x = 0; x < map_num_cols; x++) {
+				char ch;
+				map_file.get(ch);
+				int srcRectY = std::atoi(&ch) * tile_size;
+				map_file.get(ch);
+				int srcRectX = std::atoi(&ch) * tile_size;
+				map_file.ignore();
+
+				auto tile = registry.create();
+				registry.emplace<TransformComponent>(tile, glm::vec2(x * (tile_scale * tile_size), y * (tile_scale * tile_size)), glm::vec2(tile_scale, tile_scale), 0.0);
+				registry.emplace<SpriteComponent>(tile, map_asset_id, tile_size, tile_size, 0, false, srcRectX, srcRectY);
+				registry.emplace<Tile>(tile);
+			}
 		}
+		map_file.close();
+
+		Engine::map_width_ = map_num_cols * tile_size * tile_scale;
+		Engine::map_height_ = map_num_rows * tile_size * tile_scale;
 	}
-	map_file.close();
 
-	Engine::map_width_ = map_num_cols * tile_size * tile_scale;
-	Engine::map_height_ = map_num_rows * tile_size * tile_scale;
+	sol::optional<sol::table> has_entities = level["entities"];
+	if (has_entities == sol::nullopt)
+	{
+		return; //Nothing else to check
+	}
 
-	entt::entity chopper = registry.create();
-	registry.emplace<Player>(chopper);
-	registry.emplace<TransformComponent>(chopper, glm::vec2(100.0, 100.0), glm::vec2(1.0, 1.0), 0.0);
-	registry.emplace<RigidBodyComponent>(chopper, glm::vec2(0.0, 0.0));
-	registry.emplace<SpriteComponent>(chopper, "chopper-image", 32, 32, 10);
-	registry.emplace<AnimationComponent>(chopper, 2, 15, true);
-	registry.emplace<BoxColliderComponent>(chopper, 32, 32);
-	registry.emplace<KeyboardControlledComponent>(chopper, glm::vec2(0, -100), glm::vec2(100, 0), glm::vec2(0, 100), glm::vec2(-100, 0));
-	registry.emplace<CameraFollowComponent>(chopper);
-	registry.emplace<HealthComponent>(chopper, 100);
-	registry.emplace<ProjectileEmitterComponent>(chopper, -300, 300, 10000, 10, true);
+	sol::table entities = level["entities"];
+	i = 0;
+	while (true)
+	{
+		sol::optional<sol::table> has_entity = entities[i];
+		if (has_entity == sol::nullopt)
+		{
+			break;
+		}
+		auto entity = entities[i];
+		entt::entity entity_to_add = registry.create();
+		sol::optional<std::string> has_tag = entity["tag"];
+		if (has_tag != sol::nullopt)
+		{
+			std::string tag = entity["tag"];
+			if (tag == "Player")
+			{
+				registry.emplace<Player>(entity_to_add);
+			}
+			if (tag == "Enemy")
+			{
+				registry.emplace<Enemy>(entity_to_add);
+			}
+			if (tag == "Obstacle")
+			{
+				registry.emplace<Obstacle>(entity_to_add);
+			}
+		}
 
+		sol::optional<sol::table> has_components = entity["components"];
+		if (has_components != sol::nullopt)
+		{
+			sol::table components = entity["components"];
+			if (sol::optional<sol::table> has_component = components["transform"]; has_component != sol::nullopt)
+			{
+				sol::table transform = components["transform"];
+				registry.emplace<TransformComponent>(
+					entity_to_add,
+					glm::vec2(transform["position"]["x"], transform["position"]["y"]),
+					glm::vec2(transform["scale"]["x"], transform["scale"]["y"]),
+					transform["rotation"]);
+			}
 
-	entt::entity radar = registry.create();
-	//radar.Group("ui");
-	registry.emplace<TransformComponent>(radar, glm::vec2(Engine::window_width_ - 74, 10), glm::vec2(1.0, 1.0), 0.0);
-	registry.emplace<RigidBodyComponent>(radar, glm::vec2(0.0, 0.0));
-	registry.emplace<SpriteComponent>(radar, "radar-image", 64, 64, 200, true);
-	registry.emplace<AnimationComponent>(radar, 8, 7, true);
+			if (sol::optional<sol::table> has_component = components["rigidbody"]; has_component != sol::nullopt)
+			{
+				sol::table rigidbody = components["rigidbody"];
+				registry.emplace<RigidBodyComponent>(
+					entity_to_add,
+					glm::vec2(rigidbody["velocity"]["x"], rigidbody["velocity"]["y"])
+					);
+			}
 
-	auto tank1 = registry.create();
-	auto tank2 = registry.create();
+			if (sol::optional<sol::table> has_component = components["sprite"]; has_component != sol::nullopt)
+			{
+				sol::table sprite = components["sprite"];
+				registry.emplace<SpriteComponent>(
+					entity_to_add,
+					sprite["texture_asset_id"],
+					sprite["width"],
+					sprite["height"],
+					sprite["z_index"],
+					sprite["is_fixed"].get_or(false));
+			}
 
-	registry.emplace<Enemy>(tank1);
-	registry.emplace<TransformComponent>(tank1, glm::vec2(500.0, 490.0), glm::vec2(1.0, 1.0), -90.0);
-	registry.emplace<RigidBodyComponent>(tank1, glm::vec2(50.0, 0.0));
-	registry.emplace<SpriteComponent>(tank1, "tank-blue", 42, 46, 2);
-	registry.emplace<BoxColliderComponent>(tank1, 42, 46);
-	registry.emplace<ProjectileEmitterComponent>(tank1, 100, 5000, 10000, 25, false);
-	registry.emplace<HealthComponent>(tank1, 100);
+			if (sol::optional<sol::table> has_component = components["animation"]; has_component != sol::nullopt)
+			{
+				sol::table animation = components["animation"];
+				registry.emplace<AnimationComponent>(
+					entity_to_add,
+					animation["num_frames"],
+					animation["speed_rate"],
+					animation["z_index"]);
+			}
 
-	//truck.Tag("truck");
-	registry.emplace<Enemy>(tank2);
-	registry.emplace<TransformComponent>(tank2, glm::vec2(105.0, 543.0), glm::vec2(1.0, 1.0), 0.0);
-	registry.emplace<RigidBodyComponent>(tank2, glm::vec2(0.0, 0.0));
-	registry.emplace<SpriteComponent>(tank2, "tank-dark", 42, 46, 1);
-	registry.emplace<BoxColliderComponent>(tank2, 42, 46);
-	registry.emplace<ProjectileEmitterComponent>(tank2, 100, 2000, 6000, 10, false);
-	registry.emplace<HealthComponent>(tank2, 100);
-	//registry_.emplace<DebugComponent>(truck);
+			if (sol::optional<sol::table> has_component = components["boxcollider"]; has_component != sol::nullopt)
+			{
+				sol::table boxcollider = components["boxcollider"];
+				registry.emplace<BoxColliderComponent>(
+					entity_to_add,
+					boxcollider["width"],
+					boxcollider["height"],
+					glm::vec2(boxcollider["offset"]["x"].get_or(0.0), boxcollider["offset"]["y"].get_or(0.0)));
+			}
 
-	auto tree1 = registry.create();
-	registry.emplace<Obstacle>(tree1);
-	registry.emplace<TransformComponent>(tree1, glm::vec2(1000.0, 482.0), glm::vec2(1.0, 1.0), 0.0);
-	registry.emplace<RigidBodyComponent>(tree1, glm::vec2(0.0, 0.0));
-	registry.emplace<SpriteComponent>(tree1, "tree-brown-large", 64, 64, 5);
-	registry.emplace<BoxColliderComponent>(tree1, 64, 64);
+			if (sol::optional<int> has_component = components["health"]; has_component != sol::nullopt)
+			{
+				int health = components["health"];
+				registry.emplace<HealthComponent>(entity_to_add, health);
+			}
 
-	auto tree2 = registry.create();
-	registry.emplace<Obstacle>(tree2);
-	registry.emplace<TransformComponent>(tree2, glm::vec2(300.0, 482.0), glm::vec2(1.0, 1.0), 0.0);
-	registry.emplace<RigidBodyComponent>(tree2, glm::vec2(0.0, 0.0));
-	registry.emplace<SpriteComponent>(tree2, "tree-green-large", 64, 64, 5);
-	registry.emplace<BoxColliderComponent>(tree2, 64, 64);
+			if (sol::optional<sol::table> has_component = components["projectile_emitter"]; has_component != sol::nullopt)
+			{
+				sol::table projectile_emitter = components["projectile_emitter"];
+				registry.emplace<ProjectileEmitterComponent>(
+					entity_to_add,
+					projectile_emitter["projectile_speed"],
+					projectile_emitter["repeat_freq"],
+					projectile_emitter["projectile_duration"],
+					projectile_emitter["hit_damage"],
+					projectile_emitter["is_friendly"]
+					);
+			}
 
-	auto label = registry.create();
-	SDL_Colour cornflower_blue = { 0x64, 0x95, 0xED, 0xFF };
-	registry.emplace<TextComponent>(label, glm::vec2(Engine::window_width_ / 2 - 25, 25), "Chopper", "covertops", cornflower_blue, true);
+			if (sol::optional<sol::table> has_component = components["keyboard_controlled"]; has_component != sol::nullopt)
+			{
+				sol::table keyboard_controlled = components["keyboard_controlled"];
+				registry.emplace<KeyboardControlledComponent>(
+					entity_to_add,
+					glm::vec2(keyboard_controlled["up_velocity"]["x"], keyboard_controlled["up_velocity"]["y"]),
+					glm::vec2(keyboard_controlled["right_velocity"]["x"], keyboard_controlled["right_velocity"]["y"]),
+					glm::vec2(keyboard_controlled["down_velocity"]["x"], keyboard_controlled["down_velocity"]["y"]),
+					glm::vec2(keyboard_controlled["left_velocity"]["x"], keyboard_controlled["left_velocity"]["y"])
+					);
+			}
+
+			if (sol::optional<bool> has_component = components["camera_follow"]; has_component != sol::nullopt)
+			{
+				registry.emplace<CameraFollowComponent>(entity_to_add);
+			}
+
+			if (sol::optional<sol::table> has_component = components["text"]; has_component != sol::nullopt)
+			{
+				sol::table text_component = components["text"];
+				SDL_Colour colour = { text_component["colour"]["red"],text_component["colour"]["green"],
+					text_component["colour"]["blue"],text_component["colour"]["alpha"] };
+				registry.emplace<TextComponent>(
+					entity_to_add,
+					glm::vec2(text_component["position"]["x"], text_component["position"]["y"]),
+					text_component["text"],
+					text_component["font"],
+					colour,
+					text_component["is_fixed"]
+					);
+			}
+		}
+
+		i++;
+	}
+
 }

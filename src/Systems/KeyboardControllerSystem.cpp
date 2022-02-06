@@ -38,22 +38,22 @@ void KeyboardControllerSystem::OnKeyPressed(KeypressEvent& event)
 		case SDLK_UP:
 			rigid_body.velocity = keyboard.up_velocity;
 			direction = 0;
-			velocity = { 0,1 };
+			velocity = { 0,-1 };
 			break;
 		case SDLK_RIGHT:
 			rigid_body.velocity = keyboard.right_velocity;
 			direction = 1;
-			velocity = { -1,0 };
+			velocity = { 1,0 };
 			break;
 		case SDLK_DOWN:
 			rigid_body.velocity = keyboard.down_velocity;
 			direction = 2;
-			velocity = { 0,-1 };
+			velocity = { 0,1 };
 			break;
 		case SDLK_LEFT:
 			rigid_body.velocity = keyboard.left_velocity;
 			direction = 3;
-			velocity = { 1,0 };
+			velocity = { -1,0 };
 			break;
 		case SDLK_SPACE:
 		{
