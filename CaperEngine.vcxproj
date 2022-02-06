@@ -152,6 +152,7 @@
     <ClInclude Include="include\Components\ProjectileEmitterComponent.h" />
     <ClInclude Include="include\Components\Tags.h" />
     <ClInclude Include="include\Components\TextComponent.h" />
+    <ClInclude Include="include\Engine\LevelLoader.h" />
     <ClInclude Include="include\Events\CollisionEvent.h" />
     <ClInclude Include="include\AssetStore\AssetStore.h" />
     <ClInclude Include="include\Components\AnimationComponent.h" />
@@ -630,6 +631,7 @@
     <ClInclude Include="include\Components\TransformComponent.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="assets\scripts\level1.lua" />
     <None Include="libs\glm\detail\func_common.inl" />
     <None Include="libs\glm\detail\func_common_simd.inl" />
     <None Include="libs\glm\detail\func_exponential.inl" />
@@ -771,6 +773,7 @@
     <ClCompile Include="libs\imgui\imgui_impl_sdlrenderer.cpp" />
     <ClCompile Include="libs\imgui\imgui_tables.cpp" />
     <ClCompile Include="libs\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\Engine\LevelLoader.cpp" />
     <ClCompile Include="src\Systems\CameraMovementSystem.cpp" />
     <ClCompile Include="src\Systems\CollisionSystem.cpp" />
     <ClCompile Include="src\Systems\AnimationSystem.cpp" />

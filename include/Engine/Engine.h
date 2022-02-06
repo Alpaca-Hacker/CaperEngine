@@ -4,6 +4,7 @@
 
 #include "AssetStore/AssetStore.h"
 #include "Events/KeypressEvent.h"
+#include "sol/sol.hpp"
 
 const int FPS = 30;
 constexpr int MILLISECS_PER_FRAME = 1000 / FPS;
@@ -20,7 +21,6 @@ public:
 	~Engine();
 
 	void Initialise();
-	void LoadLevel(int level);
 	void Setup();
 	void OnEndOfFrame();
 	void Run();
@@ -32,6 +32,7 @@ public:
 
 private:
 
+	sol::state lua; // Needs to be at the top else stuff happens
 	SDL_Window* window_;
 	SDL_Renderer* renderer_;
 	bool is_running_;
@@ -42,4 +43,6 @@ private:
 	entt::registry registry_;
 	std::unique_ptr<AssetStore> asset_store_;
 	std::unique_ptr<entt::dispatcher> dispatcher_;
+
+
 };
