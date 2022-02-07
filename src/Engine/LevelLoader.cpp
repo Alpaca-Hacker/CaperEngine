@@ -122,6 +122,7 @@ void LevelLoader::LoadLevel(sol::state& lua, int level_number, entt::registry& r
 	i = 0;
 	while (true)
 	{
+		Logger::Log("Loading Entity {}", i);
 		sol::optional<sol::table> has_entity = entities[i];
 		if (has_entity == sol::nullopt)
 		{
@@ -178,8 +179,11 @@ void LevelLoader::LoadLevel(sol::state& lua, int level_number, entt::registry& r
 					sprite["texture_asset_id"],
 					sprite["width"],
 					sprite["height"],
-					sprite["z_index"],
-					sprite["is_fixed"].get_or(false));
+					sprite["z_index"].get_or(1),
+					sprite["is_fixed"].get_or(false),
+					sprite["src_rect_x"].get_or(0),
+					sprite["src_rect_y"].get_or(0)
+					);
 			}
 
 			if (sol::optional<sol::table> has_component = components["animation"]; has_component != sol::nullopt)
@@ -189,7 +193,7 @@ void LevelLoader::LoadLevel(sol::state& lua, int level_number, entt::registry& r
 					entity_to_add,
 					animation["num_frames"],
 					animation["speed_rate"],
-					animation["z_index"]);
+					animation["is_loop"].get_or(true));
 			}
 
 			if (sol::optional<sol::table> has_component = components["boxcollider"]; has_component != sol::nullopt)
@@ -202,22 +206,28 @@ void LevelLoader::LoadLevel(sol::state& lua, int level_number, entt::registry& r
 					glm::vec2(boxcollider["offset"]["x"].get_or(0.0), boxcollider["offset"]["y"].get_or(0.0)));
 			}
 
-			if (sol::optional<int> has_component = components["health"]; has_component != sol::nullopt)
+			//if (sol::optional<int> has_component = components["health"]; has_component != sol::nullopt)
+			//{
+			//	int health = components["health"].get_or(100);
+			//	registry.emplace<HealthComponent>(entity_to_add, health);
+			//}
+			if (sol::optional<sol::table> has_component = components["health"]; has_component != sol::nullopt)
 			{
-				int health = components["health"];
+				int health = components["health"]["health_percentage"].get_or(100);
 				registry.emplace<HealthComponent>(entity_to_add, health);
 			}
 
 			if (sol::optional<sol::table> has_component = components["projectile_emitter"]; has_component != sol::nullopt)
 			{
 				sol::table projectile_emitter = components["projectile_emitter"];
+
 				registry.emplace<ProjectileEmitterComponent>(
 					entity_to_add,
-					projectile_emitter["projectile_speed"],
-					projectile_emitter["repeat_freq"],
-					projectile_emitter["projectile_duration"],
-					projectile_emitter["hit_damage"],
-					projectile_emitter["is_friendly"]
+					projectile_emitter["projectile_velocity"]["x"],
+					static_cast<int> (projectile_emitter["repeat_frequency"]) * 1000,
+					static_cast<int> (projectile_emitter["projectile_duration"]) * 1000,
+					projectile_emitter["hit_percentage_damage"],
+					projectile_emitter["friendly"]
 					);
 			}
 
@@ -233,7 +243,7 @@ void LevelLoader::LoadLevel(sol::state& lua, int level_number, entt::registry& r
 					);
 			}
 
-			if (sol::optional<bool> has_component = components["camera_follow"]; has_component != sol::nullopt)
+			if (sol::optional<sol::table> has_component = components["camera_follow"]; has_component != sol::nullopt)
 			{
 				registry.emplace<CameraFollowComponent>(entity_to_add);
 			}
